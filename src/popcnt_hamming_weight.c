@@ -6,6 +6,9 @@
 
 #include <x86intrin.h>
 
+
+#if defined(HAVE_POPCNT_INSTRUCTION)
+
 #include "popcnt_hamming_weight.h"
 
 
@@ -30,3 +33,5 @@ int unrolled_popcnt_bitset64_weight(const uint64_t * input, size_t length) {
     }
     return card;
 }
+
+#endif // HAVE_POPCNT_INSTRUCTION

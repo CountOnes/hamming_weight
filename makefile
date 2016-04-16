@@ -2,11 +2,24 @@
 .SUFFIXES:
 #
 .SUFFIXES: .cpp .o .c .h
+CFLAGS= -fPIC -std=c99 -Wall -Wextra -Wshadow
 ifeq ($(DEBUG),1)
-CFLAGS = -fPIC  -std=c99 -ggdb -mavx2 -march=native -Wall -Wextra -Wshadow -fsanitize=undefined  -fno-omit-frame-pointer -fsanitize=address
+CFLAGS += -ggdb -fsanitize=undefined  -fno-omit-frame-pointer -fsanitize=address
 else
-CFLAGS = -fPIC -std=c99 -O3 -mavx2  -march=native -Wall -Wextra -Wshadow
+CFLAGS += -O3
 endif # debug
+
+ifeq ($(SSE),1)
+CLFAGS += -msse -march=native
+else
+CLFAGS += -mavx2 -march=native -DHAVE_AVX2_INSTRUCTIONS
+endif # sse
+
+ifneq ($(NOPOPCNT),1)
+CFLAGS += -DHAVE_POPCNT_INSTRUCTION
+endif
+
+
 all:  basic_benchmark
 
 HEADERS=./include/avx_hamming_weight.h ./include/hamming_weight.h ./include/popcnt_hamming_weight.h ./include/scalar_hamming_weight.h ./include/tabulated_hamming_weight.h

@@ -12,3 +12,10 @@ make
 ./basic_benchmark
 ```
 
+If a CPU doesn't support AVX2 define SSE. If a CPU doesn't support popcnt instruction
+then define NOPOPCNT.
+
+```
+export SSE=1 NOPOPCNT=1; make
+./basic_benchmark
+```

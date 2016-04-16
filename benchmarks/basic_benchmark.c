@@ -17,11 +17,17 @@ void demo(int size) {
 
     BEST_TIME(lauradoux_bitset64_weight(prec,size),expected,, repeat, size);
     BEST_TIME(scalar_bitset64_weight(prec,size),expected,, repeat, size);
+#if defined(HAVE_POPCNT_INSTRUCTION)
     BEST_TIME(popcnt_bitset64_weight(prec,size),expected,, repeat, size);
+#endif
     BEST_TIME(table_bitset8_weight((uint8_t*)prec,size*8),expected,, repeat, size);
     BEST_TIME(table_bitset16_weight((uint16_t*)prec,size*4),expected,, repeat, size);
+#if defined(HAVE_POPCNT_INSTRUCTION)
     BEST_TIME(unrolled_popcnt_bitset64_weight(prec,size),expected,, repeat, size);
+#endif
+#if defined(HAVE_AVX2_INSTRUCTION)
     BEST_TIME(avx2_bitset64_weight(prec,size),expected,, repeat, size);
+#endif
 
     free(prec);
     printf("\n");

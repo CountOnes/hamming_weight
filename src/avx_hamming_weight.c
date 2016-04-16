@@ -6,6 +6,9 @@
 
 #include <x86intrin.h>
 
+#if defined(HAVE_AVX2_INSTRUCTIONS)
+
+
 #include "avx_hamming_weight.h"
 #include "popcnt_hamming_weight.h"
 
@@ -57,3 +60,5 @@ int avx2_bitset64_weight(const uint64_t * array, size_t length) {
     return leftover + _mm256_extract_epi64(total, 0) + _mm256_extract_epi64(total, 1) +
            _mm256_extract_epi64(total, 2) + _mm256_extract_epi64(total, 3);
 }
+
+#endif // HAVE_AVX2_INSTRUCTIONS
