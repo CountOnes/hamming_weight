@@ -21,7 +21,7 @@ int avx2_bitset64_weight(const uint64_t * array, size_t length) {
     const __m256i mask = _mm256_set1_epi8(0x0f);  // low 4 bits of each byte
     __m256i total = _mm256_setzero_si256();
     __m256i zero = _mm256_setzero_si256();
-    const int inner = 4;  // length of the inner loop, could go up to 8 safely
+    const int inner = 8;  // length of the inner loop, could go up to 8 safely
     const int outer = length * sizeof(uint64_t) /
                       (sizeof(__m256i) * inner);  // length of outer loop
     for (int k = 0; k < outer; k++) {
