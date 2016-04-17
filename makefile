@@ -10,9 +10,9 @@ CFLAGS += -O3
 endif # debug
 
 ifeq ($(SSE),1)
-CLFAGS += -msse -march=native
+CFLAGS += -msse -march=native
 else
-CLFAGS += -mavx2 -march=native -DHAVE_AVX2_INSTRUCTIONS
+CFLAGS += -mavx2 -march=native -DHAVE_AVX2_INSTRUCTIONS
 endif # sse
 
 ifneq ($(NOPOPCNT),1)
