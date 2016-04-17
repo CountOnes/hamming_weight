@@ -7,7 +7,7 @@
 #include <x86intrin.h>
 
 
-#if defined(HAVE_POPCNT_INSTRUCTION)
+#ifdef HAVE_POPCNT_INSTRUCTION
 
 #include "popcnt_hamming_weight.h"
 

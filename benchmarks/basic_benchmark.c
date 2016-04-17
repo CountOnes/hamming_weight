@@ -17,16 +17,18 @@ void demo(int size) {
 
     BEST_TIME(lauradoux_bitset64_weight(prec,size),expected,, repeat, size);
     BEST_TIME(scalar_bitset64_weight(prec,size),expected,, repeat, size);
-#if defined(HAVE_POPCNT_INSTRUCTION)
-    BEST_TIME(popcnt_bitset64_weight(prec,size),expected,, repeat, size);
-#endif
     BEST_TIME(table_bitset8_weight((uint8_t*)prec,size*8),expected,, repeat, size);
     BEST_TIME(table_bitset16_weight((uint16_t*)prec,size*4),expected,, repeat, size);
 #if defined(HAVE_POPCNT_INSTRUCTION)
+    BEST_TIME(popcnt_bitset64_weight(prec,size),expected,, repeat, size);
     BEST_TIME(unrolled_popcnt_bitset64_weight(prec,size),expected,, repeat, size);
+#else
+    printf("no popcnt instruction\n");
 #endif
-#if defined(HAVE_AVX2_INSTRUCTION)
+#if defined(HAVE_AVX2_INSTRUCTIONS)
     BEST_TIME(avx2_bitset64_weight(prec,size),expected,, repeat, size);
+#else
+    printf("no AVX2 instructions\n");
 #endif
 
     free(prec);
@@ -34,10 +36,8 @@ void demo(int size) {
 }
 
 int main() {
-    demo(16);
-    demo(32);
-    demo(64);
-    demo(128);
-    demo(1024);
+    for(int w = 8; w <= 1024; w *= 2) {
+      demo(w);
+    }
     return 0;
 }
