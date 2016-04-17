@@ -12,6 +12,66 @@
 #include "avx_hamming_weight.h"
 #include "popcnt_hamming_weight.h"
 
+
+int avx2_lookup_bitset64_weight(const uint64_t* data, size_t n) {
+    size_t i = 0;
+    const __m256i lookup = _mm256_setr_epi8(
+        /* 0 */ 0, /* 1 */ 1, /* 2 */ 1, /* 3 */ 2,
+        /* 4 */ 1, /* 5 */ 2, /* 6 */ 2, /* 7 */ 3,
+        /* 8 */ 1, /* 9 */ 2, /* a */ 2, /* b */ 3,
+        /* c */ 2, /* d */ 3, /* e */ 3, /* f */ 4,
+
+        /* 0 */ 0, /* 1 */ 1, /* 2 */ 1, /* 3 */ 2,
+        /* 4 */ 1, /* 5 */ 2, /* 6 */ 2, /* 7 */ 3,
+        /* 8 */ 1, /* 9 */ 2, /* a */ 2, /* b */ 3,
+        /* c */ 2, /* d */ 3, /* e */ 3, /* f */ 4
+    );
+
+    const __m256i low_mask = _mm256_set1_epi8(0x0f);
+
+    __m256i acc = _mm256_setzero_si256();
+
+#define ITER { \
+        const __m256i vec = _mm256_loadu_si256((const __m256i*)(data + i)); \
+        const __m256i lo  = _mm256_and_si256(vec, low_mask); \
+        const __m256i hi  = _mm256_and_si256(_mm256_srli_epi16(vec, 4), low_mask); \
+        const __m256i popcnt1 = _mm256_shuffle_epi8(lookup, lo); \
+        const __m256i popcnt2 = _mm256_shuffle_epi8(lookup, hi); \
+        local = _mm256_add_epi8(local, popcnt1); \
+        local = _mm256_add_epi8(local, popcnt2); \
+        i += 4; \
+    }
+
+    while (i + 8*4 <= n) {
+        __m256i local = _mm256_setzero_si256();
+        ITER ITER ITER ITER
+        ITER ITER ITER ITER
+        acc = _mm256_add_epi64(acc, _mm256_sad_epu8(local, _mm256_setzero_si256()));
+    }
+
+    __m256i local = _mm256_setzero_si256();
+
+    while (i + 4 <= n) {
+        ITER;
+    }
+
+    acc = _mm256_add_epi64(acc, _mm256_sad_epu8(local, _mm256_setzero_si256()));
+
+#undef ITER
+
+    uint64_t result = 0;
+
+    result += (uint64_t)(_mm256_extract_epi64(acc, 0));
+    result += (uint64_t)(_mm256_extract_epi64(acc, 1));
+    result += (uint64_t)(_mm256_extract_epi64(acc, 2));
+    result += (uint64_t)(_mm256_extract_epi64(acc, 3));
+
+    for (/**/; i < n; i++) {
+        result += _mm_popcnt_u64(data[i]);
+    }
+    return result;
+}
+
 // compute the Hamming weight of an array of 64-bit words using AVX2 instructions
 int avx2_bitset64_weight(const uint64_t * array, size_t length) {
     const int inner = 8;  // length of the inner loop, could go up to 8 safely
