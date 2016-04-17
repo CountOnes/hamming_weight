@@ -75,8 +75,10 @@ static uint64_t popcnt(const __m256i* data, const uint64_t size) {
 }
 
 int avx2_harley_seal_bitset64_weight(const uint64_t * data, size_t size) {
-  int total = popcnt((const __m256i*) data, size / (sizeof(__m256i) / sizeof(uint64_t)));
-  for (size_t i = size - size % (sizeof(__m256i) / sizeof(uint64_t)); i < size; i++) {
+  const unsigned int wordspervector = sizeof(__m256i) / sizeof(uint64_t);
+  const unsigned int minvit = 16 * wordspervector;
+  int total = size >= minvit ? popcnt((const __m256i*) data, size / wordspervector) : 0;
+  for (size_t i = size - size % minvit; i < size; i++) {
     total += _mm_popcnt_u64(data[i]);
   }
   return total;

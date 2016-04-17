@@ -14,6 +14,18 @@
 
 // compute the Hamming weight of an array of 64-bit words using AVX2 instructions
 int avx2_bitset64_weight(const uint64_t * array, size_t length) {
+    const int inner = 8;  // length of the inner loop, could go up to 8 safely
+    const int outer = length * sizeof(uint64_t) /
+                      (sizeof(__m256i) * inner);  // length of outer loop
+    if(outer == 0) { // we are useless;
+      int leftover = 0;
+      for(size_t k = 0; k < length; ++k) {
+        leftover += _mm_popcnt_u64(array[k]);
+      }
+      return leftover;
+    }
+
+
     // these are precomputed hamming weights (weight(0), weight(1)...)
     const __m256i shuf =
         _mm256_setr_epi8(0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 0, 1,
@@ -21,9 +33,6 @@ int avx2_bitset64_weight(const uint64_t * array, size_t length) {
     const __m256i mask = _mm256_set1_epi8(0x0f);  // low 4 bits of each byte
     __m256i total = _mm256_setzero_si256();
     __m256i zero = _mm256_setzero_si256();
-    const int inner = 8;  // length of the inner loop, could go up to 8 safely
-    const int outer = length * sizeof(uint64_t) /
-                      (sizeof(__m256i) * inner);  // length of outer loop
     for (int k = 0; k < outer; k++) {
         __m256i innertotal = _mm256_setzero_si256();
         for (int i = 0; i < inner; ++i) {
