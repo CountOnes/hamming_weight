@@ -45,7 +45,7 @@ void demo(int size) {
 }
 
 int main() {
-    for(int w = 8; w <= 1024; w *= 2) {
+    for(int w = 8; w <= 8192; w *= 2) {
       demo(w);
     }
     return 0;
