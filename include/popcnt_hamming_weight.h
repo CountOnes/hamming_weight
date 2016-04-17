@@ -2,10 +2,8 @@
 #define _POPCNT_HAMMING_WEIGHT_H_
 
 #include <stdint.h>
+#include "config.h"
 
-#ifdef __POPCNT__
-#define HAVE_POPCNT_INSTRUCTION 1
-#endif
 
 #ifdef HAVE_POPCNT_INSTRUCTION
 

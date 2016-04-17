@@ -33,7 +33,8 @@ void demo(int size) {
 #endif
 #if defined(HAVE_AVX2_INSTRUCTIONS)
     BEST_TIME(avx2_bitset64_weight(prec,size),expected,, repeat, size);
-    BEST_TIME(avx_lauradoux_bitset64_weight(prec,size),expected,, repeat, size);
+    BEST_TIME(avx2_lauradoux_bitset64_weight(prec,size),expected,, repeat, size);
+    BEST_TIME(avx2_harley_seal_bitset64_weight(prec,size),expected,, repeat, size);
 #else
     printf("no AVX2 instructions\n");
 #endif

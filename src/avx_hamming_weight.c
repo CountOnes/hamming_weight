@@ -53,14 +53,17 @@ int avx2_bitset64_weight(const uint64_t * array, size_t length) {
                     total,
                     innertotal);  // add the 4 64-bit counters to previous counter
     }
-    int leftoverwords =  length % (inner * sizeof(__m256i) / sizeof(uint64_t));
-    int leftover = popcnt_bitset64_weight(array + length - leftoverwords , leftoverwords);
+    const int leftoverwords =  length % (inner * sizeof(__m256i) / sizeof(uint64_t));
+    int leftover = 0;
+    for(size_t k = length - leftoverwords; k < length; ++k) {
+      leftover += _mm_popcnt_u64(array[k]);
+    }
     return leftover + _mm256_extract_epi64(total, 0) + _mm256_extract_epi64(total, 1) +
            _mm256_extract_epi64(total, 2) + _mm256_extract_epi64(total, 3);
 }
 
 
-int avx_lauradoux_bitset64_weight(const uint64_t *input, size_t size) {
+int avx2_lauradoux_bitset64_weight(const uint64_t *input, size_t size) {
     const __m256i M1  = _mm256_set1_epi64x(UINT64_C(0x5555555555555555));
     const __m256i M2  = _mm256_set1_epi64x(UINT64_C(0x3333333333333333));
     const __m256i M4  = _mm256_set1_epi64x(UINT64_C(0x0F0F0F0F0F0F0F0F));

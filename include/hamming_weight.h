@@ -5,5 +5,6 @@
 #include "popcnt_hamming_weight.h"
 #include "avx_hamming_weight.h"
 #include "scalar_hamming_weight.h"
+#include "avx_harley_seal_hamming_weight.h"
 
 #endif
