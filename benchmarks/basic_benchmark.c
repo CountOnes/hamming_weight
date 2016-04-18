@@ -28,6 +28,7 @@ void demo(int size) {
 #if defined(HAVE_POPCNT_INSTRUCTION)
     BEST_TIME(popcnt_bitset64_weight(prec,size),expected,, repeat, size);
     BEST_TIME(unrolled_popcnt_bitset64_weight(prec,size),expected,, repeat, size);
+    BEST_TIME(yee_popcnt_bitset64_weight(prec,size),expected,, repeat, size);
 #else
     printf("no popcnt instruction\n");
 #endif
