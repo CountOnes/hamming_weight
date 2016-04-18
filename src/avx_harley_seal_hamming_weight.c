@@ -10,19 +10,7 @@
 
 #include "avx_harley_seal_hamming_weight.h"
 
-static __m256i popcount_1(const __m256i v) {
-  const __m256i m1 = _mm256_set1_epi8(0x55);
-  const __m256i m2 = _mm256_set1_epi8(0x33);
-  const __m256i m4 = _mm256_set1_epi8(0x0F);
-
-  const __m256i t1 = _mm256_sub_epi8(v,       (_mm256_srli_epi16(v,  1) & m1));
-  const __m256i t2 = _mm256_add_epi8(t1 & m2, (_mm256_srli_epi16(t1, 2) & m2));
-  const __m256i t3 = _mm256_add_epi8(t2, _mm256_srli_epi16(t2, 4)) & m4;
-  return _mm256_sad_epu8(t3, _mm256_setzero_si256());
-}
-
-
-static __m256i popcount_2(__m256i v) {
+static __m256i popcount(__m256i v) {
 
     const __m256i lookup = _mm256_setr_epi8(
         /* 0 */ 0, /* 1 */ 1, /* 2 */ 1, /* 3 */ 2,
@@ -52,12 +40,6 @@ static inline void CSA(__m256i* h, __m256i* l, __m256i a, __m256i b, __m256i c) 
   *h = _mm256_or_si256(_mm256_and_si256(a , b) , _mm256_and_si256(u , c) );
   *l = _mm256_xor_si256(u , c);
 }
-
-#if 1
-#   define popcount popcount_1
-#else
-#   define popcount popcount_2
-#endif
 
 static uint64_t popcnt(const __m256i* data, const uint64_t size) {
   __m256i total     = _mm256_setzero_si256();
