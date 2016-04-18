@@ -54,18 +54,18 @@ static uint64_t popcnt(const __m256i* data, const uint64_t size) {
   uint64_t i = 0;
 
   for(; i < limit; i += 16) {
-    CSA(&twosA, &ones, ones, data[i+0], data[i+1]);
-    CSA(&twosB, &ones, ones, data[i+2], data[i+3]);
+    CSA(&twosA, &ones, ones, _mm256_lddqu_si256(data + i), _mm256_lddqu_si256(data + i + 1));
+    CSA(&twosB, &ones, ones, _mm256_lddqu_si256(data + i + 2), _mm256_lddqu_si256(data + i + 3));
     CSA(&foursA, &twos, twos, twosA, twosB);
-    CSA(&twosA, &ones, ones, data[i+4], data[i+5]);
-    CSA(&twosB, &ones, ones, data[i+6], data[i+7]);
+    CSA(&twosA, &ones, ones, _mm256_lddqu_si256(data + i + 4), _mm256_lddqu_si256(data + i + 5));
+    CSA(&twosB, &ones, ones, _mm256_lddqu_si256(data + i + 6), _mm256_lddqu_si256(data + i + 7));
     CSA(&foursB,& twos, twos, twosA, twosB);
     CSA(&eightsA,&fours, fours, foursA, foursB);
-    CSA(&twosA, &ones, ones, data[i+8], data[i+9]);
-    CSA(&twosB, &ones, ones, data[i+10], data[i+11]);
+    CSA(&twosA, &ones, ones, _mm256_lddqu_si256(data + i + 8), _mm256_lddqu_si256(data + i + 9));
+    CSA(&twosB, &ones, ones, _mm256_lddqu_si256(data + i + 10), _mm256_lddqu_si256(data + i + 11));
     CSA(&foursA, &twos, twos, twosA, twosB);
-    CSA(&twosA, &ones, ones, data[i+12], data[i+13]);
-    CSA(&twosB, &ones, ones, data[i+14], data[i+15]);
+    CSA(&twosA, &ones, ones, _mm256_lddqu_si256(data + i + 12), _mm256_lddqu_si256(data + i + 13));
+    CSA(&twosB, &ones, ones, _mm256_lddqu_si256(data + i + 14), _mm256_lddqu_si256(data + i + 15));
     CSA(&foursB, &twos, twos, twosA, twosB);
     CSA(&eightsB, &fours, fours, foursA, foursB);
     CSA(&sixteens, &eights, eights, eightsA, eightsB);
@@ -79,7 +79,7 @@ static uint64_t popcnt(const __m256i* data, const uint64_t size) {
   total = _mm256_add_epi64(total, _mm256_slli_epi64(popcount(twos),   1)); // += 2 * ...
   total = _mm256_add_epi64(total, popcount(ones));
   for(; i < size; i++)
-    total = _mm256_add_epi64(total, popcount(data[i]));
+    total = _mm256_add_epi64(total, popcount(_mm256_lddqu_si256(data + i)));
 
 
   return (uint64_t)(_mm256_extract_epi64(total, 0))
