@@ -1,3 +1,6 @@
+# Specific for this project
+basic_benchmark
+
 # Object files
 *.o
 *.ko
