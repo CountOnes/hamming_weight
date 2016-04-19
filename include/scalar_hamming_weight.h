@@ -11,4 +11,8 @@ int scalar_bitset64_weight(const uint64_t * input, size_t length);
 // Computes the hamming weight. Attributed to Cédric Lauradoux
 int lauradoux_bitset64_weight(const uint64_t *input, size_t size);
 
+
+/// Harley-Seal popcount, see "Hacker's Delight" 2nd edition.
+int scalar_harley_seal_bitset64_weight(const uint64_t * data, size_t size);
+
 #endif

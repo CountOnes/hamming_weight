@@ -23,6 +23,7 @@ void demo(int size) {
 
     BEST_TIME(lauradoux_bitset64_weight(prec,size),expected,, repeat, size);
     BEST_TIME(scalar_bitset64_weight(prec,size),expected,, repeat, size);
+    BEST_TIME(scalar_harley_seal_bitset64_weight(prec,size),expected,, repeat, size);
     BEST_TIME(table_bitset8_weight((uint8_t*)prec,size*8),expected,, repeat, size);
     BEST_TIME(table_bitset16_weight((uint16_t*)prec,size*4),expected,, repeat, size);
 #if defined(HAVE_POPCNT_INSTRUCTION)
