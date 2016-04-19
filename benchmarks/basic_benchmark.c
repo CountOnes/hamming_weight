@@ -37,6 +37,7 @@ void demo(int size) {
     BEST_TIME(avx2_lookup_bitset64_weight(prec,size),expected,, repeat, size);
     BEST_TIME(avx2_lauradoux_bitset64_weight(prec,size),expected,, repeat, size);
     BEST_TIME(avx2_harley_seal_bitset64_weight(prec,size),expected,, repeat, size);
+    BEST_TIME(avx2_harley_seal_unrolled_twice(prec,size),expected,, repeat, size);
 #else
     printf("no AVX2 instructions\n");
 #endif
