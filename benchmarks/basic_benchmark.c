@@ -42,6 +42,13 @@ void demo(int size) {
 #else
     printf("no AVX2 instructions\n");
 #endif
+#if defined(HAVE_AVX512_INSTRUCTIONS)
+    BEST_TIME(avx512_harley_seal(prec,size),    expected,, repeat, size);
+    BEST_TIME(avx512_vpermb(prec,size),         expected,, repeat, size);
+    BEST_TIME(avx512_vperm2b(prec,size),        expected,, repeat, size);
+#else
+    printf("no AVX512 instructions\n");
+#endif
 
     free(prec);
     printf("\n");
