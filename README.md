@@ -9,6 +9,7 @@ Usage
 
 ```bash
 make
+./unit
 ./basic_benchmark
 ```
 

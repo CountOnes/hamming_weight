@@ -24,7 +24,7 @@ CFLAGS += -DHAVE_POPCNT_INSTRUCTION
 endif
 
 
-all:  basic_benchmark
+all: unit basic_benchmark
 
 HEADERS=./include/avx_hamming_weight.h ./include/hamming_weight.h ./include/popcnt_hamming_weight.h ./include/scalar_hamming_weight.h ./include/tabulated_hamming_weight.h ./include/avx_harley_seal_hamming_weight.h ./include/config.h ./include/avx512_hamming_weight.h
 
@@ -38,8 +38,12 @@ OBJECTS= avx_hamming_weight.o popcnt_hamming_weight.o scalar_hamming_weight.o \
 basic_benchmark: ./benchmarks/basic_benchmark.c  ./benchmarks/benchmark.h  $(HEADERS) $(OBJECTS)
 	$(CC) $(CFLAGS) -o basic_benchmark ./benchmarks/basic_benchmark.c -Iinclude  $(OBJECTS)
 
+unit: ./tests/unit.c  $(HEADERS) $(OBJECTS)
+	$(CC) $(CFLAGS) -o unit ./tests/unit.c -Iinclude  $(OBJECTS)
+
+
 avx512: basic_benchmark
 	sde -cnl -- ./basic_benchmark
 
 clean:
-	rm -f basic_benchmark *.o
+	rm -f unit basic_benchmark *.o
