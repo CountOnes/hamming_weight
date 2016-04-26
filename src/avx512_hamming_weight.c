@@ -171,6 +171,7 @@ uint64_t popcnt_vperm2b(const __m512i* data, const uint64_t count) {
     const __m512i lookup0 = _mm512_loadu_si512(small_table);
     const __m512i lookup1 = _mm512_loadu_si512(small_table + 64);
     __m512i v, t;
+    __mmask64 m;
 
     uint64_t i;
     for (i=0; i < count; i++) {
@@ -180,9 +181,15 @@ uint64_t popcnt_vperm2b(const __m512i* data, const uint64_t count) {
         t = _mm512_permutex2var_epi8(lookup0, v, lookup1);
 
         // add 7-th bit
+#if 0
         v = _mm512_srli_epi64(v, 7); // (v & 0x80) ? 1 : 0
         v = _mm512_and_si512(v, _mm512_set1_epi8(0x01));
         t = _mm512_add_epi8(t, v);
+#else // Nathan's idea
+        m = _mm512_movepi8_mask(v);
+        v = _mm512_movm_epi8(m);
+        t = _mm512_sub_epi8(t, v);
+#endif
 
         result = _mm512_add_epi64(result, _mm512_sad_epu8(t, _mm512_setzero_si512()));
     }
