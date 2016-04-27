@@ -106,4 +106,105 @@ int avx2_harley_seal_bitset64_weight(const uint64_t * data, size_t size) {
   return total;
 }
 
+
+
+
+/***
+ * follows experimental code that does more aggressive inlining
+ */
+
+
+// this is simply the above function, with the body repeated twice
+static uint64_t popcnt_unrolled_twice(const __m256i* data, const uint64_t size) {
+  __m256i total     = _mm256_setzero_si256();
+  __m256i ones0     = _mm256_setzero_si256();
+  __m256i twos0     = _mm256_setzero_si256();
+  __m256i fours0    = _mm256_setzero_si256();
+  __m256i eights0   = _mm256_setzero_si256();
+  __m256i sixteens0 = _mm256_setzero_si256();
+  __m256i twosA0, twosB0, foursA0, foursB0, eightsA0, eightsB0;
+  __m256i ones1     = _mm256_setzero_si256();
+  __m256i twos1     = _mm256_setzero_si256();
+  __m256i fours1    = _mm256_setzero_si256();
+  __m256i eights1   = _mm256_setzero_si256();
+  __m256i sixteens1 = _mm256_setzero_si256();
+  __m256i twosA1, twosB1, foursA1, foursB1, eightsA1, eightsB1;
+
+  const uint64_t limit = size - size % 32;
+  uint64_t i = 0;
+
+  for(; i < limit; i += 32) {
+    CSA(&twosA0,    &ones0,   ones0,   data[i+0], data[i+1]);
+    CSA(&twosA1,    &ones1,   ones1,   data[i+16+0], data[i+16+1]);
+    CSA(&twosB0,    &ones0,   ones0,   data[i+2], data[i+3]);
+    CSA(&twosB1,    &ones1,   ones1,   data[i+16+2], data[i+16+3]);
+    CSA(&foursA0,   &twos0,   twos0,   twosA0, twosB0);
+    CSA(&foursA1,   &twos1,   twos1,   twosA1, twosB1);
+    CSA(&twosA0,    &ones0,   ones0,   data[i+4], data[i+5]);
+    CSA(&twosA1,    &ones1,   ones1,   data[i+16+4], data[i+16+5]);
+    CSA(&twosB0,    &ones0,   ones0,   data[i+6], data[i+7]);
+    CSA(&twosB1,    &ones1,   ones1,   data[i+16+6], data[i+16+7]);
+    CSA(&foursB0,   &twos0,   twos0,   twosA0, twosB0);
+    CSA(&foursB1,   &twos1,   twos1,   twosA1, twosB1);
+    CSA(&eightsA0,  &fours0,  fours0,  foursA0, foursB0);
+    CSA(&eightsA1,  &fours1,  fours1,  foursA1, foursB1);
+    CSA(&twosA0,    &ones0,   ones0,   data[i+8], data[i+9]);
+    CSA(&twosA1,    &ones1,   ones1,   data[i+16+8], data[i+16+9]);
+    CSA(&twosB0,    &ones0,   ones0,   data[i+10], data[i+11]);
+    CSA(&twosB1,    &ones1,   ones1,   data[i+16+10], data[i+16+11]);
+    CSA(&foursA0,   &twos0,   twos0,   twosA0, twosB0);
+    CSA(&foursA1,   &twos1,   twos1,   twosA1, twosB1);
+    CSA(&twosA0,    &ones0,   ones0,   data[i+12], data[i+13]);
+    CSA(&twosA1,    &ones1,   ones1,   data[i+16+12], data[i+16+13]);
+    CSA(&twosB0,    &ones0,   ones0,   data[i+14], data[i+15]);
+    CSA(&twosB1,    &ones1,   ones1,   data[i+16+14], data[i+16+15]);
+    CSA(&foursB0,   &twos0,   twos0,   twosA0, twosB0);
+    CSA(&foursB1,   &twos1,   twos1,   twosA1, twosB1);
+    CSA(&eightsB0,  &fours0,  fours0,  foursA0, foursB0);
+    CSA(&eightsB1,  &fours1,  fours1,  foursA1, foursB1);
+    CSA(&sixteens0, &eights0, eights0, eightsA0, eightsB0);
+    CSA(&sixteens1, &eights1, eights1, eightsA1, eightsB1);
+
+    total = _mm256_add_epi64(total, popcount(sixteens0));
+    total = _mm256_add_epi64(total, popcount(sixteens1));
+  }
+
+  total = _mm256_slli_epi64(total, 4);     // * 16
+  total = _mm256_add_epi64(total, _mm256_slli_epi64(popcount(eights0), 3)); // += 8 * ...
+  total = _mm256_add_epi64(total, _mm256_slli_epi64(popcount(fours0),  2)); // += 4 * ...
+  total = _mm256_add_epi64(total, _mm256_slli_epi64(popcount(twos0),   1)); // += 2 * ...
+  total = _mm256_add_epi64(total, popcount(ones0));
+  total = _mm256_add_epi64(total, _mm256_slli_epi64(popcount(eights1), 3)); // += 8 * ...
+  total = _mm256_add_epi64(total, _mm256_slli_epi64(popcount(fours1),  2)); // += 4 * ...
+  total = _mm256_add_epi64(total, _mm256_slli_epi64(popcount(twos1),   1)); // += 2 * ...
+  total = _mm256_add_epi64(total, popcount(ones1));
+  for(; i < size; i++)
+    total = _mm256_add_epi64(total, popcount(data[i]));
+
+
+  return (uint64_t)(_mm256_extract_epi64(total, 0))
+       + (uint64_t)(_mm256_extract_epi64(total, 1))
+       + (uint64_t)(_mm256_extract_epi64(total, 2))
+       + (uint64_t)(_mm256_extract_epi64(total, 3));
+}
+
+int avx2_harley_seal_bitset64_weight_unrolled_twice(const uint64_t * data, size_t size) {
+  const unsigned int wordspervector = sizeof(__m256i) / sizeof(uint64_t);
+  const unsigned int minvit = 32 * wordspervector;
+  int total;
+  if(size >= minvit) {
+    total = popcnt_unrolled_twice((const __m256i*) data, size / wordspervector);
+    for (size_t i = size - size % wordspervector; i < size; i++) {
+      total += _mm_popcnt_u64(data[i]);
+    }
+    return total;
+  }
+  total = 0;
+  for (size_t i = size - size % minvit; i < size; i++) {
+    total += _mm_popcnt_u64(data[i]);
+  }
+  return total;
+}
+
+
 #endif // HAVE_AVX2_INSTRUCTIONS

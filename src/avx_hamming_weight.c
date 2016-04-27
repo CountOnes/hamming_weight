@@ -173,5 +173,4 @@ int avx2_lauradoux_bitset64_weight(const uint64_t *input, size_t size) {
     return bit_count;
 }
 
-
 #endif // HAVE_AVX2_INSTRUCTIONS

@@ -19,7 +19,32 @@
     }                                                               \
  } while (0)
 
-
+static bool check(uint64_t * prec, int size) {
+    int expected = scalar_bitset64_weight(prec,size);
+    CHECK_VALUE(lauradoux_bitset64_weight(prec,size),expected);
+    CHECK_VALUE(scalar_bitset64_weight(prec,size),expected);
+    CHECK_VALUE(scalar_harley_seal_bitset64_weight(prec,size),expected);
+    CHECK_VALUE(table_bitset8_weight((uint8_t*)prec,size*8),expected);
+    CHECK_VALUE(table_bitset16_weight((uint16_t*)prec,size*4),expected);
+#if defined(HAVE_POPCNT_INSTRUCTION)
+    CHECK_VALUE(popcnt_bitset64_weight(prec,size),expected);
+    CHECK_VALUE(unrolled_popcnt_bitset64_weight(prec,size),expected);
+    CHECK_VALUE(yee_popcnt_bitset64_weight(prec,size),expected);
+#endif
+#if defined(HAVE_AVX2_INSTRUCTIONS)
+    CHECK_VALUE(avx2_bitset64_weight(prec,size),expected);
+    CHECK_VALUE(avx2_lookup_bitset64_weight(prec,size),expected);
+    CHECK_VALUE(avx2_lauradoux_bitset64_weight(prec,size),expected);
+    CHECK_VALUE(avx2_harley_seal_bitset64_weight(prec,size),expected);
+    CHECK_VALUE(avx2_harley_seal_bitset64_weight_unrolled_twice(prec,size),expected);
+#endif
+#if defined(HAVE_AVX512_INSTRUCTIONS)
+    CHECK_VALUE(avx512_harley_seal(prec,size),    expected);
+    CHECK_VALUE(avx512_vpermb(prec,size),         expected);
+    CHECK_VALUE(avx512_vperm2b(prec,size),        expected);
+#endif
+    return true;
+}
 
 bool check_continuous(int size, int runstart, int runend) {
     uint64_t * prec = malloc(size * sizeof(uint64_t));
@@ -27,61 +52,40 @@ bool check_continuous(int size, int runstart, int runend) {
     for(int i = runstart; i < runend; ++i) {
         prec[i/64] |= (UINT64_C(1)<<(i%64));
     }
-    int expected = scalar_bitset64_weight(prec,size);
-    CHECK_VALUE(lauradoux_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(scalar_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(scalar_harley_seal_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(table_bitset8_weight((uint8_t*)prec,size*8),expected);
-    CHECK_VALUE(table_bitset16_weight((uint16_t*)prec,size*4),expected);
-#if defined(HAVE_POPCNT_INSTRUCTION)
-    CHECK_VALUE(popcnt_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(unrolled_popcnt_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(yee_popcnt_bitset64_weight(prec,size),expected);
-#endif
-#if defined(HAVE_AVX2_INSTRUCTIONS)
-    CHECK_VALUE(avx2_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(avx2_lookup_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(avx2_lauradoux_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(avx2_harley_seal_bitset64_weight(prec,size),expected);
-#endif
-#if defined(HAVE_AVX512_INSTRUCTIONS)
-    CHECK_VALUE(avx512_harley_seal(prec,size),    expected);
-    CHECK_VALUE(avx512_vpermb(prec,size),         expected);
-    CHECK_VALUE(avx512_vperm2b(prec,size),        expected);
-#endif
+    bool answer = check(prec,size);
     free(prec);
-    return true;
+    return answer;
 }
 
 bool check_constant(int size, uint8_t w) {
     uint64_t * prec = malloc(size * sizeof(uint64_t));
     memset(prec,w,size * sizeof(uint64_t));
-    int expected = scalar_bitset64_weight(prec,size);
-    CHECK_VALUE(lauradoux_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(scalar_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(scalar_harley_seal_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(table_bitset8_weight((uint8_t*)prec,size*8),expected);
-    CHECK_VALUE(table_bitset16_weight((uint16_t*)prec,size*4),expected);
-#if defined(HAVE_POPCNT_INSTRUCTION)
-    CHECK_VALUE(popcnt_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(unrolled_popcnt_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(yee_popcnt_bitset64_weight(prec,size),expected);
-#endif
-#if defined(HAVE_AVX2_INSTRUCTIONS)
-    CHECK_VALUE(avx2_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(avx2_lookup_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(avx2_lauradoux_bitset64_weight(prec,size),expected);
-    CHECK_VALUE(avx2_harley_seal_bitset64_weight(prec,size),expected);
-#endif
-#if defined(HAVE_AVX512_INSTRUCTIONS)
-    CHECK_VALUE(avx512_harley_seal(prec,size),    expected);
-    CHECK_VALUE(avx512_vpermb(prec,size),         expected);
-    CHECK_VALUE(avx512_vperm2b(prec,size),        expected);
-#endif
+    bool answer = check(prec,size);
     free(prec);
-    return true;
+    return answer;
 }
 
+bool check_step(int size, int step) {
+    uint64_t * prec = malloc(size * sizeof(uint64_t));
+    memset(prec,0,size * sizeof(uint64_t));
+    for(int i = 0; i < size * (int) sizeof(uint64_t); i+= step) {
+        prec[i/64] |= (UINT64_C(1)<<(i%64));
+    }
+    bool answer = check(prec,size);
+    free(prec);
+    return answer;
+}
+
+bool check_exponential_step(int size, int start) {
+    uint64_t * prec = malloc(size * sizeof(uint64_t));
+    memset(prec,0,size * sizeof(uint64_t));
+    for(int i = start + 1; i < size * (int) sizeof(uint64_t); i+= i) {
+        prec[i/64] |= (UINT64_C(1)<<(i%64));
+    }
+    bool answer = check(prec,size);
+    free(prec);
+    return answer;
+}
 
 int main() {
     for(int w = 8; w <= 8192; w = 2 * w - 1) {
@@ -101,7 +105,29 @@ int main() {
             }
         }
     }
-    printf("\n");
-    printf("Code looks ok.\n");
+	printf("\n");
+	for (int w = 8; w <= 8192; w = 2 * w - 1) {
+		printf(".");
+		fflush(stdout);
+		for (int step = 1; step < w * (int) sizeof(uint64_t);
+				step += w / 33 + 1) {
+			if (!check_step(w, step))
+				return -1;
+
+		}
+	}
+	printf("\n");
+	for (int w = 8; w <= 8192; w = 2 * w - 1) {
+		printf(".");
+		fflush(stdout);
+		for (int start = 0; start < w * (int) sizeof(uint64_t);
+				start += w / 11 + 1) {
+			if (!check_exponential_step(w, start))
+				return -1;
+
+		}
+	}
+	printf("\n");
+	printf("Code looks ok.\n");
     return 0;
 }
