@@ -33,6 +33,9 @@ void demo(int size) {
 #else
     printf("no popcnt instruction\n");
 #endif
+
+    BEST_TIME(sse_bitset64_weight(prec,size),expected,, repeat, size);
+
 #if defined(HAVE_AVX2_INSTRUCTIONS)
     BEST_TIME(avx2_bitset64_weight(prec,size),expected,, repeat, size);
     BEST_TIME(avx2_lookup_bitset64_weight(prec,size),expected,, repeat, size);

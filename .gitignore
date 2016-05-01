@@ -1,5 +1,6 @@
 # Specific for this project
 basic_benchmark
+unit
 pin-log.txt
 
 # Object files
