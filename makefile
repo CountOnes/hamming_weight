@@ -31,7 +31,8 @@ HEADERS=./include/avx_hamming_weight.h ./include/hamming_weight.h ./include/popc
 OBJECTS= avx_hamming_weight.o popcnt_hamming_weight.o scalar_hamming_weight.o \
 		 tabulated_hamming_weight.o avx_harley_seal_hamming_weight.o \
          avx512_hamming_weight.o \
-         sse_hamming_weight.o
+         sse_hamming_weight.o \
+         sse_jaccard_index.o
 
 %.o: ./src/%.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -Iinclude
@@ -41,6 +42,9 @@ basic_benchmark: ./benchmarks/basic_benchmark.c  ./benchmarks/benchmark.h  $(HEA
 
 unit: ./tests/unit.c  $(HEADERS) $(OBJECTS)
 	$(CC) $(CFLAGS) -o unit ./tests/unit.c -Iinclude  $(OBJECTS)
+
+jaccard_benchamrk: ./benchmarks/basic_benchmark.c  ./benchmarks/benchmark.h  $(HEADERS) $(OBJECTS)
+	$(CC) $(CFLAGS) -o basic_benchmark ./benchmarks/basic_benchmark.c -Iinclude  $(OBJECTS)
 
 
 avx512: basic_benchmark
