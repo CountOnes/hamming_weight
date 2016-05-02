@@ -30,20 +30,17 @@ all: unit basic_benchmark jaccard_benchmark
 HEADERS=./include/avx_hamming_weight.h ./include/hamming_weight.h ./include/popcnt_hamming_weight.h ./include/scalar_hamming_weight.h ./include/tabulated_hamming_weight.h ./include/avx_harley_seal_hamming_weight.h ./include/config.h ./include/avx512_hamming_weight.h ./include/sse_hamming_weight.h ./include/sse_jaccard_index.h ./include/jaccard_index.h ./include/sse_jaccard_index.h
 
 OBJECTS= avx_hamming_weight.o popcnt_hamming_weight.o scalar_hamming_weight.o \
-		 tabulated_hamming_weight.o avx_harley_seal_hamming_weight.o \
-         avx512_hamming_weight.o \
-         sse_hamming_weight.o
+		tabulated_hamming_weight.o avx_harley_seal_hamming_weight.o \
+		avx512_hamming_weight.o \
+		sse_hamming_weight.o
 
 JACCARD_OBJ=sse_jaccard_index.o \
-            popcnt_jaccard_index.o
-         sse_hamming_weight.o \
-         sse_jaccard_index.o \
-         scalar_jaccard_index.o
+		popcnt_jaccard_index.o \
+		sse_hamming_weight.o \
+		scalar_jaccard_index.o
 
 %.o: ./src/%.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -Iinclude
-jaccard_benchmark: ./benchmarks/jaccard_benchmark.c  ./benchmarks/benchmark.h  $(HEADERS) $(OBJECTS)
-	$(CC) $(CFLAGS) -o jaccard_benchmark ./benchmarks/jaccard_benchmark.c -Iinclude  $(OBJECTS)
 
 
 basic_benchmark: ./benchmarks/basic_benchmark.c  ./benchmarks/benchmark.h  $(HEADERS) $(OBJECTS)
