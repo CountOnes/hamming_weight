@@ -1,5 +1,6 @@
 # Specific for this project
 basic_benchmark
+jaccard_benchmark
 unit
 pin-log.txt
 

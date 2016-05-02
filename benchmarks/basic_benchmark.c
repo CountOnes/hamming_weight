@@ -8,7 +8,6 @@
 
 #include "benchmark.h"
 #include "hamming_weight.h"
-#include "sse_jaccard_index.h"
 void *aligned_malloc(size_t alignment, size_t size) {
     void *mem;
     if (posix_memalign(&mem, alignment, size)) exit(1);
@@ -19,12 +18,8 @@ void demo(int size) {
     printf("size = %d words or %lu bytes \n",size,  size*sizeof(uint64_t));
     int repeat = 500;
     uint64_t * prec = aligned_malloc(32,size * sizeof(uint64_t));
-    uint64_t * prec2 = aligned_malloc(32,size * sizeof(uint64_t));
-    uint64_t jaccard_sum, jaccard_int;
-    for(int k = 0; k < size; ++k) {
-        prec[k]  = -k;
-        prec2[k] = k;
-    }
+    for(int k = 0; k < size; ++k) prec[k]  = -k;
+
     int expected = scalar_bitset64_weight(prec,size);
 
     BEST_TIME(lauradoux_bitset64_weight(prec,size),expected,, repeat, size);
@@ -41,7 +36,6 @@ void demo(int size) {
 #endif
 
     BEST_TIME(sse_bitset64_weight(prec,size),expected,, repeat, size);
-    BEST_TIME(sse_jaccard_index(prec,prec2,size,&jaccard_sum,&jaccard_int),0,, repeat, size);
 
 #if defined(HAVE_AVX2_INSTRUCTIONS)
     BEST_TIME(avx2_bitset64_weight(prec,size),expected,, repeat, size);
@@ -61,7 +55,6 @@ void demo(int size) {
 #endif
 
     free(prec);
-    free(prec2);
     printf("\n");
 }
 
