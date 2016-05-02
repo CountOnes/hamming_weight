@@ -10,6 +10,10 @@
 // compute the Jaccard index of an array of 64-bit words using the popcnt instruction
 int popcnt_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t n, uint64_t* sum, uint64_t* inters);
 
+// compute the Jaccard index of an array of 64-bit words using the popcnt instruction
+void slightly_unrolled_popcnt_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t n, uint64_t* sum, uint64_t* inters);
+
+
 // compute the Hamming weight of an array of 64-bit words using unrolled popcnt instructions
 int unrolled_popcnt_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t n, uint64_t* sum, uint64_t* inters);
 

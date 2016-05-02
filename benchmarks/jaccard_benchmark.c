@@ -42,6 +42,8 @@ void demo(int size) {
 #if defined(HAVE_POPCNT_INSTRUCTION)
     BEST_TIME_CHECK(popcnt_jaccard_index(prec,prec2,size,&jaccard_sum,&jaccard_int),
     		compare(jaccard_sum,jaccard_int,jaccard_sum_correct,jaccard_int_correct),, repeat, size);
+    BEST_TIME_CHECK(slightly_unrolled_popcnt_jaccard_index(prec,prec2,size,&jaccard_sum,&jaccard_int),
+    		compare(jaccard_sum,jaccard_int,jaccard_sum_correct,jaccard_int_correct),, repeat, size);
     BEST_TIME_CHECK(unrolled_popcnt_jaccard_index(prec,prec2,size,&jaccard_sum,&jaccard_int),
     		compare(jaccard_sum,jaccard_int,jaccard_sum_correct,jaccard_int_correct),, repeat, size);
     BEST_TIME_CHECK(sse_jaccard_index(prec,prec2,size,&jaccard_sum,&jaccard_int),
