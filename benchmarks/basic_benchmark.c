@@ -61,6 +61,7 @@ void demo(int size) {
 #endif
 
     free(prec);
+    free(prec2);
     printf("\n");
 }
 

@@ -80,7 +80,7 @@ int sse_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t n, ui
 
     for (/**/; i < n; i++) {
         const uint64_t a = dataA[i];
-        const uint64_t b = dataA[i];
+        const uint64_t b = dataB[i];
 
         *sum    += _mm_popcnt_u64(a | b);
         *inters += _mm_popcnt_u64(a & b);
