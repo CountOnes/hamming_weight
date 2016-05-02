@@ -10,7 +10,7 @@
 
 
 // straight out of wikipedia
-static inline uint64_t scalar_hamming_weight(uint64_t x) {
+static uint64_t scalar_hamming_weight(uint64_t x) {
     x -= (x >> 1) & 0x5555555555555555;
     x = ((x>>2)&0x3333333333333333) + (x&0x3333333333333333);
     x += x >> 4;
@@ -18,7 +18,6 @@ static inline uint64_t scalar_hamming_weight(uint64_t x) {
     x *= 0x0101010101010101;
     return x >> 56;
 }
-
 
 /**
  * Computes the hamming weight. Attributed to Cédric Lauradoux.
