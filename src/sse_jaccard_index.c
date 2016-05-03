@@ -14,7 +14,7 @@
 /*
     Procedure calculates at the same time popcount(A & B) and popcount(A | B)
 */
-int sse_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t n, uint64_t* sum, uint64_t* inters) {
+void sse_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t n, uint64_t* sum, uint64_t* inters) {
     size_t i = 0;
     const __m128i lookup = _mm_setr_epi8(
         /* 0 */ 0, /* 1 */ 1, /* 2 */ 1, /* 3 */ 2,
@@ -85,6 +85,4 @@ int sse_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t n, ui
         *sum    += _mm_popcnt_u64(a | b);
         *inters += _mm_popcnt_u64(a & b);
     }
-
-    return 0;
 }

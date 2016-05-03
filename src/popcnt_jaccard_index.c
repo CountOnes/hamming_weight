@@ -13,7 +13,7 @@
 
 
 // compute the Jaccard index of an array of 64-bit words using the popcnt instruction
-int popcnt_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t n, uint64_t* sum, uint64_t* inters) {
+void popcnt_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t n, uint64_t* sum, uint64_t* inters) {
     uint64_t s = 0;
     uint64_t i = 0;
     for(size_t k = 0; k < n; k++) {
@@ -23,8 +23,6 @@ int popcnt_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t n,
 
     *sum    = s;
     *inters = i;
-
-    return 0;
 }
 
 // compute the Jaccard index of an array of 64-bit words using the popcnt instruction
@@ -52,8 +50,9 @@ void slightly_unrolled_popcnt_jaccard_index(const uint64_t* dataA, const uint64_
     *sum    = s;
     *inters = i;
 }
+
 // compute the Jaccard index of an array of 64-bit words using unrolled popcnt instructions
-int unrolled_popcnt_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t n, uint64_t* sum, uint64_t* inters) {
+void unrolled_popcnt_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t n, uint64_t* sum, uint64_t* inters) {
     uint64_t s = 0;
     uint64_t i = 0;
 
@@ -93,8 +92,6 @@ int unrolled_popcnt_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, 
 
     *sum    = s;
     *inters = i;
-
-    return 0;
 }
 
 #endif // HAVE_POPCNT_INSTRUCTION

@@ -12,7 +12,7 @@
 #include "avx_jaccard_index.h"
 
 
-int avx2_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t n, uint64_t* sum, uint64_t* inters) {
+void avx2_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t n, uint64_t* sum, uint64_t* inters) {
     size_t i = 0;
     const __m256i lookup = _mm256_setr_epi8(
         /* 0 */ 0, /* 1 */ 1, /* 2 */ 1, /* 3 */ 2,
@@ -92,7 +92,6 @@ int avx2_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t n, u
         *sum    += _mm_popcnt_u64(dataA[i] | dataB[i]);
         *inters += _mm_popcnt_u64(dataA[i] & dataB[i]);
     }
-    return 0;
 }
 
 #endif // HAVE_AVX2_INSTRUCTIONS
