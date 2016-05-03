@@ -52,6 +52,13 @@ void demo(int size) {
     printf("no popcnt instruction\n");
 #endif
 
+#if defined(HAVE_AVX2_INSTRUCTIONS)
+    BEST_TIME_CHECK(avx2_jaccard_index(prec,prec2,size,&jaccard_sum,&jaccard_int),
+    		compare(jaccard_sum,jaccard_int,jaccard_sum_correct,jaccard_int_correct),, repeat, size);
+#else
+    printf("no AVX2 instructions\n");
+#endif
+
     free(prec);
     free(prec2);
     printf("\n");

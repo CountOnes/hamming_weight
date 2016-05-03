@@ -36,8 +36,8 @@ OBJECTS= avx_hamming_weight.o popcnt_hamming_weight.o scalar_hamming_weight.o \
 
 JACCARD_OBJ=sse_jaccard_index.o \
 		popcnt_jaccard_index.o \
-		sse_hamming_weight.o \
-		scalar_jaccard_index.o
+		scalar_jaccard_index.o \
+        avx_jaccard_index.o
 
 %.o: ./src/%.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -Iinclude
