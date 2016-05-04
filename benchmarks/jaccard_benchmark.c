@@ -53,7 +53,9 @@ void demo(int size) {
 #endif
 
 #if defined(HAVE_AVX2_INSTRUCTIONS)
-    BEST_TIME_CHECK(avx2_jaccard_index(prec,prec2,size,&jaccard_sum,&jaccard_int),
+    BEST_TIME_CHECK(avx2_jaccard_index_lookup(prec,prec2,size,&jaccard_sum,&jaccard_int),
+    		compare(jaccard_sum,jaccard_int,jaccard_sum_correct,jaccard_int_correct),, repeat, size);
+    BEST_TIME_CHECK(avx2_jaccard_index_harley_seal(prec,prec2,size,&jaccard_sum,&jaccard_int),
     		compare(jaccard_sum,jaccard_int,jaccard_sum_correct,jaccard_int_correct),, repeat, size);
 #else
     printf("no AVX2 instructions\n");
