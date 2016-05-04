@@ -16,7 +16,11 @@ else
 ifeq ($(AVX512),1)
 CFLAGS += -mavx512vbmi -march=native -DHAVE_AVX2_INSTRUCTIONS -DHAVE_AVX512_INSTRUCTIONS
 else
+ifeq ($(CC),icc)
+CFLAGS += -march=core-avx2 -march=native -DHAVE_AVX2_INSTRUCTIONS
+else
 CFLAGS += -mavx2 -march=native -DHAVE_AVX2_INSTRUCTIONS
+endif # CC=icc
 endif # avx512
 endif # sse
 

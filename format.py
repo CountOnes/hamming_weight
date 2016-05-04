@@ -11,12 +11,12 @@ def format(file):
             fun  = fun[:fun.index('(')] # trim the signature
 
             if 'error' in line:
-                print '%-40s : FAILED !!!' % fun
+                print '%-50s : FAILED !!!' % fun
             else:
                 best = float(F[2])
                 avg  = float(F[7])
 
-                print '%-40s : %6.2f %6.2f' % (fun, best, avg)
+                print '%-50s : %6.2f %6.2f' % (fun, best, avg)
         else:
             print line
 

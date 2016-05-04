@@ -2,7 +2,7 @@
 basic_benchmark
 jaccard_benchmark
 unit
-pin-log.txt
+*.txt
 
 # Object files
 *.o
