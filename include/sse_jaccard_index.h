@@ -7,9 +7,9 @@
 /*
     Compute Jaccard index coefficients:
 
-    sum    := popcount(A | B)
-    inters := popcount(A & B)
+    j_union := popcount(A | B)
+    j_inter := popcount(A & B)
 */
-void sse_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t length, uint64_t* sum, uint64_t* inters);
+void sse_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t length, uint64_t* j_union, uint64_t* j_inter);
 
 #endif

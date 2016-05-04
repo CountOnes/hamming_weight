@@ -20,14 +20,14 @@ static uint64_t scalar_hamming_weight(uint64_t x) {
 }
 
 // compute the Hamming weight of the an array of 64-bit words using a scalar Hamming weight function
-void scalar_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t length, uint64_t* sum, uint64_t* inters) {
-    *sum = 0;
-    *inters = 0;
+void scalar_jaccard_index(const uint64_t* dataA, const uint64_t* dataB, size_t length, uint64_t* j_union, uint64_t* j_inter) {
+    *j_union = 0;
+    *j_inter = 0;
     for(size_t k = 0; k < length; k++) {
     	uint64_t A = dataA[k];
     	uint64_t B = dataB[k];
-    	*sum += scalar_hamming_weight(A | B);
-    	*inters += scalar_hamming_weight(A & B);
+    	*j_union += scalar_hamming_weight(A | B);
+    	*j_inter += scalar_hamming_weight(A & B);
     }
 }
 
