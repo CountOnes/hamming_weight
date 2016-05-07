@@ -12,9 +12,9 @@
   do {                                                              \
     if((int)test != expected) {                                     \
       printf("%-40s\t: ", #test);                                   \
-      printf (" line %d of file \"%s\" (function <%s>) ",          \
-                      __LINE__, __FILE__, __func__);                 \
-      printf("not expected  (%d , %d )\n",(int)test,expected);      \
+      printf (" line %d of file \"%s\" (function <%s>) ",           \
+                      __LINE__, __FILE__, __func__);                \
+      printf("result: %d, expected: %d\n",(int)test,expected);      \
       return false;                                                 \
     }                                                               \
  } while (0)
@@ -43,12 +43,20 @@ static bool check(uint64_t * prec, int size) {
     CHECK_VALUE(avx512_harley_seal(prec,size),    expected);
     CHECK_VALUE(avx512_vpermb(prec,size),         expected);
     CHECK_VALUE(avx512_vperm2b(prec,size),        expected);
+#elif defined(HAVE_AVX512F_INSTRUCTIONS)
+    CHECK_VALUE(avx512f_harley_seal(prec,size),   expected);
 #endif
     return true;
 }
 
+void *aligned_malloc(size_t alignment, size_t size) {
+    void *mem;
+    if (posix_memalign(&mem, alignment, size)) exit(1);
+    return mem;
+}
+
 bool check_continuous(int size, int runstart, int runend) {
-    uint64_t * prec = malloc(size * sizeof(uint64_t));
+    uint64_t * prec = aligned_malloc(64, size * sizeof(uint64_t));
     memset(prec,0,size * sizeof(uint64_t));
     for(int i = runstart; i < runend; ++i) {
         prec[i/64] |= (UINT64_C(1)<<(i%64));
@@ -59,7 +67,7 @@ bool check_continuous(int size, int runstart, int runend) {
 }
 
 bool check_constant(int size, uint8_t w) {
-    uint64_t * prec = malloc(size * sizeof(uint64_t));
+    uint64_t * prec = aligned_malloc(64, size * sizeof(uint64_t));
     memset(prec,w,size * sizeof(uint64_t));
     bool answer = check(prec,size);
     free(prec);
@@ -67,7 +75,7 @@ bool check_constant(int size, uint8_t w) {
 }
 
 bool check_step(int size, int step) {
-    uint64_t * prec = malloc(size * sizeof(uint64_t));
+    uint64_t * prec = aligned_malloc(64, size * sizeof(uint64_t));
     memset(prec,0,size * sizeof(uint64_t));
     for(int i = 0; i < size * (int) sizeof(uint64_t); i+= step) {
         prec[i/64] |= (UINT64_C(1)<<(i%64));
@@ -78,7 +86,7 @@ bool check_step(int size, int step) {
 }
 
 bool check_exponential_step(int size, int start) {
-    uint64_t * prec = malloc(size * sizeof(uint64_t));
+    uint64_t * prec = aligned_malloc(64, size * sizeof(uint64_t));
     memset(prec,0,size * sizeof(uint64_t));
     for(int i = start + 1; i < size * (int) sizeof(uint64_t); i+= i) {
         prec[i/64] |= (UINT64_C(1)<<(i%64));

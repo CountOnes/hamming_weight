@@ -16,13 +16,17 @@ else
 ifeq ($(AVX512),1)
 CFLAGS += -mavx512vbmi -march=native -DHAVE_AVX2_INSTRUCTIONS -DHAVE_AVX512_INSTRUCTIONS
 else
+ifeq ($(AVX512F),1)
+CFLAGS += -mavx512f -march=native -DHAVE_AVX2_INSTRUCTIONS -DHAVE_AVX512F_INSTRUCTIONS
+else
 ifeq ($(CC),icc)
 CFLAGS += -march=core-avx2 -march=native -DHAVE_AVX2_INSTRUCTIONS
 else
 CFLAGS += -mavx2 -march=native -DHAVE_AVX2_INSTRUCTIONS
 endif # CC=icc
-endif # avx512
-endif # sse
+endif # AVX512
+endif # AVX512f
+endif # SSE
 
 ifneq ($(NOPOPCNT),1)
 CFLAGS += -DHAVE_POPCNT_INSTRUCTION
@@ -31,11 +35,24 @@ endif
 
 all: unit basic_benchmark jaccard_benchmark
 
-HEADERS=./include/avx_hamming_weight.h ./include/hamming_weight.h ./include/popcnt_hamming_weight.h ./include/scalar_hamming_weight.h ./include/tabulated_hamming_weight.h ./include/avx_harley_seal_hamming_weight.h ./include/config.h ./include/avx512_hamming_weight.h ./include/sse_hamming_weight.h ./include/sse_jaccard_index.h ./include/jaccard_index.h ./include/sse_jaccard_index.h
+HEADERS=./include/avx_hamming_weight.h \
+        ./include/hamming_weight.h \
+        ./include/popcnt_hamming_weight.h \
+        ./include/scalar_hamming_weight.h \
+        ./include/tabulated_hamming_weight.h \
+        ./include/avx_harley_seal_hamming_weight.h \
+        ./include/config.h \
+        ./include/avx512_hamming_weight.h \
+        ./include/avx512f_hamming_weight.h \
+        ./include/sse_hamming_weight.h \
+        ./include/sse_jaccard_index.h \
+        ./include/jaccard_index.h \
+        ./include/sse_jaccard_index.h
 
 OBJECTS= avx_hamming_weight.o popcnt_hamming_weight.o scalar_hamming_weight.o \
 		tabulated_hamming_weight.o avx_harley_seal_hamming_weight.o \
 		avx512_hamming_weight.o \
+		avx512f_hamming_weight.o \
 		sse_hamming_weight.o
 
 JACCARD_OBJ=sse_jaccard_index.o \
