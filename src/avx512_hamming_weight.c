@@ -204,8 +204,18 @@ uint64_t popcnt_vperm2b(const __m512i* data, const uint64_t count) {
 uint64_t avx512_harley_seal(const uint64_t * data, size_t size) {
   const unsigned int wordspervector = sizeof(__m512i) / sizeof(uint64_t);
   const unsigned int minvit = 16 * wordspervector;
-  int total = size >= minvit ? popcnt_harley_seal((const __m512i*) data, size / wordspervector) : 0;
-  for (size_t i = size - size % minvit; i < size; i++) {
+  uint64_t total;
+  size_t i;
+
+  if (size >= minvit) {
+    total = popcnt_harley_seal((const __m512i*) data, size / wordspervector);
+    i = size - size % wordspervector;
+  } else {
+    total = 0;
+    i = 0;
+  }
+
+  for (/**/; i < size; i++) {
     total += _mm_popcnt_u64(data[i]);
   }
   return total;
@@ -215,8 +225,18 @@ uint64_t avx512_harley_seal(const uint64_t * data, size_t size) {
 uint64_t avx512_vpermb(const uint64_t * data, size_t size) {
   const unsigned int wordspervector = sizeof(__m512i) / sizeof(uint64_t);
   const unsigned int minvit = 16 * wordspervector;
-  int total = size >= minvit ? popcnt_vpermb((const __m512i*) data, size / wordspervector) : 0;
-  for (size_t i = size - size % minvit; i < size; i++) {
+  uint64_t total;
+  size_t i;
+
+  if (size >= minvit) {
+    total = popcnt_vpermb((const __m512i*) data, size / wordspervector);
+    i = size - size % wordspervector;
+  } else {
+    total = 0;
+    i = 0;
+  }
+
+  for (/**/; i < size; i++) {
     total += _mm_popcnt_u64(data[i]);
   }
   return total;
@@ -226,8 +246,18 @@ uint64_t avx512_vpermb(const uint64_t * data, size_t size) {
 uint64_t avx512_vperm2b(const uint64_t * data, size_t size) {
   const unsigned int wordspervector = sizeof(__m512i) / sizeof(uint64_t);
   const unsigned int minvit = 16 * wordspervector;
-  int total = size >= minvit ? popcnt_vperm2b((const __m512i*) data, size / wordspervector) : 0;
-  for (size_t i = size - size % minvit; i < size; i++) {
+  uint64_t total;
+  size_t i;
+
+  if (size >= minvit) {
+    total = popcnt_vperm2b((const __m512i*) data, size / wordspervector);
+    i = size - size % wordspervector;
+  } else {
+    total = 0;
+    i = 0;
+  }
+
+  for (/**/; i < size; i++) {
     total += _mm_popcnt_u64(data[i]);
   }
   return total;
