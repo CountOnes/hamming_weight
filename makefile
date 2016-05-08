@@ -10,30 +10,41 @@ else
 CFLAGS += -O3
 endif # debug
 
+CFLAGS_ICC=
+CFLAGS_GCC=
+
 ifeq ($(SSE),1)
 CFLAGS += -msse -march=native
 else
 ifeq ($(AVX512),1)
-CFLAGS += -mavx512vbmi -march=native -DHAVE_AVX2_INSTRUCTIONS -DHAVE_AVX512_INSTRUCTIONS
+CFLAGS += -DHAVE_AVX2_INSTRUCTIONS -DHAVE_AVX512_INSTRUCTIONS
+CFLAGS_GCC += -mavx512vbmi -march=native
+CFLAGS_ICC += -xCORE-AVX512
 else
 ifeq ($(AVX512F),1)
-CFLAGS += -mavx512f -march=native -DHAVE_AVX2_INSTRUCTIONS -DHAVE_AVX512F_INSTRUCTIONS
-else
-ifeq ($(CC),icc)
-CFLAGS += -march=core-avx2 -march=native -DHAVE_AVX2_INSTRUCTIONS
-else
-CFLAGS += -mavx2 -march=native -DHAVE_AVX2_INSTRUCTIONS
-endif # CC=icc
+CFLAGS += -DHAVE_AVX2_INSTRUCTIONS -DHAVE_AVX512F_INSTRUCTIONS
+CFLAGS_GCC += -mavx512f -march=native
+CFLAGS_ICC += -xCOMMON-AVX512
+else # AVX2
+CFLAGS += -march=native -DHAVE_AVX2_INSTRUCTIONS
+CFLAGS_GCC += -mavx2
+CFLAGS_ICC += -march=core-avx2
+endif # AVX512F
 endif # AVX512
-endif # AVX512f
 endif # SSE
 
 ifneq ($(NOPOPCNT),1)
 CFLAGS += -DHAVE_POPCNT_INSTRUCTION
 endif
 
+ifeq ($(CC),icc)
+CFLAGS += $(CFLAGS_ICC)
+else
+CFLAGS += $(CFLAGS_GCC)
+endif
 
 all: unit basic_benchmark jaccard_benchmark
+
 
 HEADERS=./include/avx_hamming_weight.h \
         ./include/hamming_weight.h \
