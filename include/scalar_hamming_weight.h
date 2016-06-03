@@ -15,4 +15,7 @@ int lauradoux_bitset64_weight(const uint64_t *input, size_t size);
 /// Harley-Seal popcount, see "Hacker's Delight" 2nd edition.
 int scalar_harley_seal_bitset64_weight(const uint64_t * data, size_t size);
 
+// same as scalar_harley_seal_bitset64_weight but works over blocks of 8 words
+int scalar_harley_seal8_bitset64_weight(const uint64_t * data, size_t size);
+
 #endif

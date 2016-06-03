@@ -8,6 +8,7 @@
 
 #include "benchmark.h"
 #include "hamming_weight.h"
+
 void *aligned_malloc(size_t alignment, size_t size) {
     void *mem;
     if (posix_memalign(&mem, alignment, size)) exit(1);
@@ -24,6 +25,7 @@ void demo(int size) {
 
     BEST_TIME(lauradoux_bitset64_weight(prec,size),expected,, repeat, size);
     BEST_TIME(scalar_bitset64_weight(prec,size),expected,, repeat, size);
+    BEST_TIME(scalar_harley_seal8_bitset64_weight(prec,size),expected,, repeat, size);
     BEST_TIME(scalar_harley_seal_bitset64_weight(prec,size),expected,, repeat, size);
     BEST_TIME(table_bitset8_weight((uint8_t*)prec,size*8),expected,, repeat, size);
     BEST_TIME(table_bitset16_weight((uint16_t*)prec,size*4),expected,, repeat, size);

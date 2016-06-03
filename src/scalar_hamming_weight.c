@@ -133,3 +133,34 @@ int scalar_harley_seal_bitset64_weight(const uint64_t * data, size_t size)  {
 
   return total;
 }
+
+// same as scalar_harley_seal_bitset64_weight but works over blocks of 8 words
+int scalar_harley_seal8_bitset64_weight(const uint64_t * data, size_t size)  {
+  uint64_t total = 0;
+  uint64_t ones = 0, twos = 0, fours = 0, eights = 0;
+  uint64_t twosA, twosB, foursA, foursB;
+  uint64_t limit = size - size % 8;
+  uint64_t i = 0;
+
+  for(; i < limit; i += 8)
+  {
+    CSA(&twosA, &ones, ones, data[i+0], data[i+1]);
+    CSA(&twosB, &ones, ones, data[i+2], data[i+3]);
+    CSA(&foursA, &twos, twos, twosA, twosB);
+    CSA(&twosA, &ones, ones, data[i+4], data[i+5]);
+    CSA(&twosB, &ones, ones, data[i+6], data[i+7]);
+    CSA(&foursB, &twos, twos, twosA, twosB);
+    CSA(&eights, &fours, fours, foursA, foursB);
+    total += scalar_hamming_weight(eights);
+  }
+
+  total *= 8;
+  total += 4 * scalar_hamming_weight(fours);
+  total += 2 * scalar_hamming_weight(twos);
+  total += 1 * scalar_hamming_weight(ones);
+
+  for(; i < size; i++)
+    total += scalar_hamming_weight(data[i]);
+
+  return total;
+}
