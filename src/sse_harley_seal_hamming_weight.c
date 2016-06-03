@@ -9,7 +9,7 @@
 
 #include "sse_harley_seal_hamming_weight.h"
 
-static __m128i popcount(__m128i v) {
+static inline __attribute__((always_inline)) __m128i popcount(__m128i v) {
 
     const __m128i lookup = _mm_setr_epi8(
         /* 0 */ 0, /* 1 */ 1, /* 2 */ 1, /* 3 */ 2,
@@ -28,7 +28,7 @@ static __m128i popcount(__m128i v) {
 }
 
 
-void CSA(__m128i *h, __m128i* l, __m128i a, __m128i b, __m128i c)
+static inline __attribute__((always_inline)) void CSA(__m128i *h, __m128i* l, __m128i a, __m128i b, __m128i c)
 {
   const __m128i u = _mm_xor_si128(a,b);
   *h = _mm_or_si128(_mm_and_si128(a,b) , _mm_and_si128(u , c));

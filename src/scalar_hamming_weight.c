@@ -82,7 +82,7 @@ int scalar_bitset64_weight(const uint64_t * input, size_t length) {
 /// Carry-save adder (CSA).
 /// @see Chapter 5 in "Hacker's Delight".
 ///
-static inline void CSA(uint64_t* h, uint64_t* l, uint64_t a, uint64_t b, uint64_t c) {
+static inline __attribute__((always_inline)) void CSA(uint64_t* h, uint64_t* l, uint64_t a, uint64_t b, uint64_t c) {
   uint64_t u = a ^ b;
   *h = (a & b) | (u & c);
   *l = u ^ c;
