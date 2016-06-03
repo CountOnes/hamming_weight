@@ -58,13 +58,14 @@ HEADERS=./include/avx_hamming_weight.h \
         ./include/sse_hamming_weight.h \
         ./include/sse_jaccard_index.h \
         ./include/jaccard_index.h \
-        ./include/sse_jaccard_index.h
+        ./include/sse_jaccard_index.h \
+        ./include/sse_harley_seal_hamming_weight.h
 
 OBJECTS= avx_hamming_weight.o popcnt_hamming_weight.o scalar_hamming_weight.o \
 		tabulated_hamming_weight.o avx_harley_seal_hamming_weight.o \
 		avx512_hamming_weight.o \
 		avx512f_hamming_weight.o \
-		sse_hamming_weight.o
+		sse_hamming_weight.o  sse_harley_seal_hamming_weight.o
 
 JACCARD_OBJ=sse_jaccard_index.o \
 		popcnt_jaccard_index.o \
