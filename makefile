@@ -43,7 +43,7 @@ else
 CFLAGS += $(CFLAGS_GCC)
 endif
 
-all: unit basic_benchmark jaccard_benchmark
+all: unit basic_benchmark jaccard_benchmark bitset_benchmark
 
 
 HEADERS=./include/avx_hamming_weight.h \
@@ -65,7 +65,10 @@ OBJECTS= avx_hamming_weight.o popcnt_hamming_weight.o scalar_hamming_weight.o \
 		tabulated_hamming_weight.o avx_harley_seal_hamming_weight.o \
 		avx512_hamming_weight.o \
 		avx512f_hamming_weight.o \
-		sse_hamming_weight.o  sse_harley_seal_hamming_weight.o
+		sse_hamming_weight.o  sse_harley_seal_hamming_weight.o 
+
+BITSET_OBJ = avx_bitset.o popcnt_bitset.o scalar_bitset.o
+		
 
 JACCARD_OBJ=sse_jaccard_index.o \
 		popcnt_jaccard_index.o \
@@ -81,6 +84,9 @@ basic_benchmark: ./benchmarks/basic_benchmark.c  ./benchmarks/benchmark.h  $(HEA
 
 jaccard_benchmark: ./benchmarks/jaccard_benchmark.c  ./benchmarks/benchmark.h  $(HEADERS) $(JACCARD_OBJ)
 	$(CC) $(CFLAGS) -o $@ ./benchmarks/jaccard_benchmark.c -Iinclude  $(JACCARD_OBJ)
+
+bitset_benchmark: ./benchmarks/bitset_benchmark.c  ./benchmarks/benchmark.h  $(HEADERS) $(BITSET_OBJ)
+	$(CC) $(CFLAGS) -o $@ ./benchmarks/bitset_benchmark.c -Iinclude  $(BITSET_OBJ)
 
 unit: ./tests/unit.c  $(HEADERS) $(OBJECTS)
 	$(CC) $(CFLAGS) -o unit ./tests/unit.c -Iinclude  $(OBJECTS)
