@@ -153,9 +153,9 @@ static uint64_t popcntnate(const __m256i* data, const uint64_t size) {
   }
 
   total = _mm256_slli_epi64(total, 4);     // * 16
-  total = _mm256_add_epi64(total, _mm256_slli_epi64(popcount(eights), 3)); // += 8 * ...
-  total = _mm256_add_epi64(total, _mm256_slli_epi64(popcount(fours),  2)); // += 4 * ...
-  total = _mm256_add_epi64(total, _mm256_slli_epi64(popcount(twos),   1)); // += 2 * ...
+  total = _mm256_add_epi64(total, _mm256_slli_epi64(popcountnate(eights), 3)); // += 8 * ...
+  total = _mm256_add_epi64(total, _mm256_slli_epi64(popcountnate(fours),  2)); // += 4 * ...
+  total = _mm256_add_epi64(total, _mm256_slli_epi64(popcountnate(twos),   1)); // += 2 * ...
   total = _mm256_add_epi64(total, popcountnate(ones));
   for(; i < size; i++)
     total = _mm256_add_epi64(total, popcountnate(_mm256_lddqu_si256(data + i)));
@@ -179,7 +179,7 @@ int avx2_harley_seal_bitset64_weight(const uint64_t * data, size_t size) {
     return total;
   }
   total = 0;
-  for (size_t i = size - size % minvit; i < size; i++) {
+  for (size_t i = 0; i < size; i++) {
     total += _mm_popcnt_u64(data[i]);
   }
   return total;
@@ -199,7 +199,7 @@ int avx2_harley_seal_nate_bitset64_weight(const uint64_t * data, size_t size) {
     return total;
   }
   total = 0;
-  for (size_t i = size - size % minvit; i < size; i++) {
+  for (size_t i = 0; i < size; i++) {
     total += _mm_popcnt_u64(data[i]);
   }
   return total;
@@ -296,7 +296,7 @@ int avx2_harley_seal_bitset64_weight_unrolled_twice(const uint64_t * data, size_
     return total;
   }
   total = 0;
-  for (size_t i = size - size % minvit; i < size; i++) {
+  for (size_t i = 0; i < size; i++) {
     total += _mm_popcnt_u64(data[i]);
   }
   return total;
