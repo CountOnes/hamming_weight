@@ -58,7 +58,7 @@ int avx_nocard_##opname(const uint64_t * restrict array_1,                      
         ymm1 = avx_intrinsic(A2, A1);                                   \
         _mm256_storeu_si256((__m256i *)out + idx + 3, ymm1);            \
     }                                                                   \
-    for (size_t i =  length - length % 16; i < length; i += 4) {           \
+    for (size_t i =  length - length % 16; i < length; i ++) {           \
             const uint64_t word_1 = (array_1[i])opsymbol(array_2[i]);   \
             out[i] = word_1;                                            \
     }                                                                   \
