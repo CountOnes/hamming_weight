@@ -107,8 +107,8 @@ uint64_t global_rdtsc_overhead = (uint64_t) UINT64_MAX;
                 __asm volatile("" ::: /* pretend to clobber */ "memory"); \
                 RDTSC_START(cycles_start);                                \
                 test ;                                                    \
-                if(! check) {printf("error");break;}                     \
                 RDTSC_STOP(cycles_final);                                \
+                if(! check) {printf("error");break;}                     \
                 cycles_diff = (cycles_final - cycles_start - global_rdtsc_overhead);           \
                 if (cycles_diff < min_diff) min_diff = cycles_diff;       \
                 sum_diff += cycles_diff;                                  \

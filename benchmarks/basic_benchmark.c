@@ -65,7 +65,8 @@ void demo(int size) {
 
 int main() {
     for(int w = 8; w <= 8192; w *= 2) {
-      demo(w);
+        demo(w);
+        demo(w*3/2);
     }
     return 0;
 }

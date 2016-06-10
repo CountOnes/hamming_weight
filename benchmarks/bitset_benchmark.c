@@ -82,7 +82,7 @@ void demo(int size) {
     	dataB[k] = k;
     }
     int expected =  scalar_and(dataA, dataB, size, out);
-
+    BEST_TIME_CHECK(memcpy(out, dataA, size * sizeof(uint64_t)), !memcmp (out, dataA, size * sizeof(uint64_t)),, repeat, size);
     BEST_TIME(scalar_and(dataA, dataB, size, out),expected,, repeat, size);
     BEST_TIME(scalar_nocard_and(dataA, dataB, size, out),0,, repeat, size);
 
@@ -109,6 +109,7 @@ void demo(int size) {
 int main() {
     for(int w = 8; w <= 8192; w *= 2) {
       demo(w);
+      demo(w*3/2);
     }
     return 0;
 }
