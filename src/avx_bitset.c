@@ -7,9 +7,9 @@
 #ifdef HAVE_AVX2_INSTRUCTIONS
 
 #define BITSET_CONTAINER_FN(opname, opsymbol, avx_intrinsic)             \
-int avx_lookup_##opname(const uint64_t *array_1,                        \
-                              const uint64_t *array_2,                  \
-							  size_t length, uint64_t *out) {           \
+int avx_lookup_##opname(const uint64_t * restrict array_1,                        \
+                              const uint64_t * restrict array_2,                  \
+							  size_t length, uint64_t * restrict out) {           \
     const __m256i shuf =                                                \
        _mm256_setr_epi8(0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, \
                         0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4);\
@@ -228,8 +228,8 @@ static uint64_t popcntnate_and(const __m256i* data1, const __m256i* data2,
 
 
 
-int avx_harley_seal_and(const uint64_t* dataA, const uint64_t* dataB,size_t length,
-		uint64_t*out) {
+int avx_harley_seal_and(const uint64_t*  restrict  dataA, const uint64_t*  restrict  dataB,size_t length,
+		uint64_t * restrict  out) {
   const unsigned int wordspervector = sizeof(__m256i) / sizeof(uint64_t);
   const unsigned int minvit = 16 * wordspervector;
   int total;
