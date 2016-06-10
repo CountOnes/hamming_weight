@@ -21,9 +21,9 @@ void *aligned_malloc(size_t alignment, size_t size) {
 #include <x86intrin.h>
 
 #define BITSET_CONTAINER_FN(opname, opsymbol)                \
-int scalar_nocard_##opname(const uint64_t *array_1,          \
-        const uint64_t *array_2,                             \
-		  size_t length, uint64_t *out) {                    \
+int scalar_nocard_##opname(const uint64_t * restrict array_1,          \
+        const uint64_t * restrict array_2,                             \
+		  size_t length, uint64_t * restrict out) {                    \
   for (size_t i =  0; i < length; i += 4) {                  \
    const uint64_t word_1 = (array_1[i])opsymbol(array_2[i]); \
    out[i] = word_1;                                          \
@@ -35,9 +35,9 @@ BITSET_CONTAINER_FN(and, &)
 #undef BITSET_CONTAINER_FN
 
 #define BITSET_CONTAINER_FN(opname, opsymbol, avx_intrinsic)             \
-int avx_nocard_##opname(const uint64_t *array_1,                        \
-                              const uint64_t *array_2,                  \
-							  size_t length, uint64_t *out) {           \
+int avx_nocard_##opname(const uint64_t * restrict array_1,                        \
+                              const uint64_t * restrict array_2,                  \
+							  size_t length, uint64_t * restrict out) {           \
     const size_t m256length = length / 4;                               \
     for (size_t idx = 0; idx + 3 < m256length; idx += 4) {              \
         __m256i A1, A2, ymm1;                                     \
