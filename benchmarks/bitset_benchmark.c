@@ -24,7 +24,7 @@ void *aligned_malloc(size_t alignment, size_t size) {
 int scalar_nocard_##opname(const uint64_t * restrict array_1,          \
         const uint64_t * restrict array_2,                             \
 		  size_t length, uint64_t * restrict out) {                    \
-  for (size_t i =  0; i < length; i += 4) {                  \
+  for (size_t i =  0; i < length; i ++) {                  \
    const uint64_t word_1 = (array_1[i])opsymbol(array_2[i]); \
    out[i] = word_1;                                          \
   }                                                          \
