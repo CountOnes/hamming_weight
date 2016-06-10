@@ -71,7 +71,7 @@ int avx_lookup_##opname(const uint64_t *array_1,                        \
         _mm256_extract_epi64(total,1) +                                 \
         _mm256_extract_epi64(total,2) +                                 \
         _mm256_extract_epi64(total,3);                                  \
-    for (size_t i =  length - length % 16; i < length; i += 4) {           \
+    for (size_t i =  length - length % 16; i < length; i ++) {           \
             const uint64_t word_1 = (array_1[i])opsymbol(array_2[i]);   \
             out[i] = word_1;                                            \
             cardinality += _mm_popcnt_u64(word_1);                      \
