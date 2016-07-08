@@ -6,8 +6,8 @@
 #include <x86intrin.h>
 
 #define BITSET_CONTAINER_FN(opname, opsymbol)               \
-int popcnt_##opname(const uint64_t* array_1, const uint64_t* array_2,     \
-		size_t length, uint64_t*out) {                                    \
+int popcnt_##opname(const uint64_t*  restrict array_1, const uint64_t*  restrict array_2,     \
+		size_t length, uint64_t*  restrict  out) {                                    \
     int32_t sum = 0;                                                      \
     size_t i = 0;                                                         \
     for (; i + 1 < length; i += 2) {                                      \

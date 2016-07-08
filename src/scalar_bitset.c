@@ -15,8 +15,8 @@ static uint64_t scalar_hamming_weight(uint64_t x) {
 }
 
 #define BITSET_CONTAINER_FN(opname, opsymbol)               \
-int scalar_##opname(const uint64_t* array_1, const uint64_t* array_2,     \
-		size_t length, uint64_t*out) {                                    \
+int scalar_##opname(const uint64_t*  restrict  array_1, const uint64_t*  restrict  array_2,     \
+		size_t length, uint64_t* restrict out) {                                    \
     int32_t sum = 0;                                                      \
     size_t i = 0;                                                         \
     for (; i + 1 < length; i += 2) {                                      \
