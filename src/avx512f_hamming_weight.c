@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include <x86intrin.h>
+#include "config.h"
 
 #ifdef HAVE_AVX512F_INSTRUCTIONS
 
