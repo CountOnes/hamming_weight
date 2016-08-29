@@ -1,6 +1,7 @@
 # Specific for this project
 basic_benchmark
 jaccard_benchmark
+bitset_benchmark
 unit
 *.txt
 

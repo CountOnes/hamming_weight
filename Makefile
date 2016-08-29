@@ -33,6 +33,12 @@ endif # AVX512F
 endif # AVX512
 endif # SSE
 
+ifeq ($(AVX512CD),1)
+CFLAGS += -DHAVE_AVX2_INSTRUCTIONS -DHAVE_AVX512F_INSTRUCTIONS -DHAVE_AVX512CD_INSTRUCTIONS
+CFLAGS_GCC += -mavx512f -mavx512cd -march=native
+CFLAGS_ICC += -xCOMMON-AVX512
+endif
+
 ifneq ($(NOPOPCNT),1)
 CFLAGS += -DHAVE_POPCNT_INSTRUCTION
 endif
@@ -55,6 +61,7 @@ HEADERS=./include/avx_hamming_weight.h \
         ./include/config.h \
         ./include/avx512_hamming_weight.h \
         ./include/avx512f_hamming_weight.h \
+        ./include/avx512cd_hamming_weight.h \
         ./include/sse_hamming_weight.h \
         ./include/sse_jaccard_index.h \
         ./include/jaccard_index.h \
@@ -65,6 +72,7 @@ OBJECTS= avx_hamming_weight.o popcnt_hamming_weight.o scalar_hamming_weight.o \
 		tabulated_hamming_weight.o avx_harley_seal_hamming_weight.o \
 		avx512_hamming_weight.o \
 		avx512f_hamming_weight.o \
+		avx512cd_hamming_weight.o \
 		sse_hamming_weight.o  sse_harley_seal_hamming_weight.o 
 
 BITSET_OBJ = avx_bitset.o popcnt_bitset.o scalar_bitset.o

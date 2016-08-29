@@ -53,9 +53,16 @@ void demo(int size) {
     BEST_TIME(avx512_harley_seal(prec,size),    expected,, repeat, size);
     BEST_TIME(avx512_vpermb(prec,size),         expected,, repeat, size);
     BEST_TIME(avx512_vperm2b(prec,size),        expected,, repeat, size);
-#elif defined(HAVE_AVX512F_INSTRUCTIONS)
-    BEST_TIME(avx512f_harley_seal(prec,size),   expected,, repeat, size);
 #else
+#   if defined(HAVE_AVX512F_INSTRUCTIONS)
+        BEST_TIME(avx512f_harley_seal(prec,size),   expected,, repeat, size);
+#   endif
+#   if defined(HAVE_AVX512CD_INSTRUCTIONS)
+        BEST_TIME(avx512cd_naive(prec,size),   expected,, repeat, size);
+#   endif
+#endif
+
+#if !defined(HAVE_AVX512_INSTRUCTIONS) && !defined(HAVE_AVX512F_INSTRUCTIONS) && !defined(HAVE_AVX512CD_INSTRUCTIONS)
     printf("no AVX512 instructions\n");
 #endif
 

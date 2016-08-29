@@ -10,5 +10,6 @@
 #include "avx_harley_seal_hamming_weight.h"
 #include "avx512_hamming_weight.h"
 #include "avx512f_hamming_weight.h"
+#include "avx512cd_hamming_weight.h"
 
 #endif

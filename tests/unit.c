@@ -21,6 +21,7 @@
 
 static bool check(uint64_t * prec, int size) {
     int expected = scalar_bitset64_weight(prec,size);
+#if 0
     CHECK_VALUE(lauradoux_bitset64_weight(prec,size),expected);
     CHECK_VALUE(scalar_bitset64_weight(prec,size),expected);
     CHECK_VALUE(scalar_harley_seal_bitset64_weight(prec,size),expected);
@@ -45,8 +46,13 @@ static bool check(uint64_t * prec, int size) {
     CHECK_VALUE(avx512_harley_seal(prec,size),    expected);
     CHECK_VALUE(avx512_vpermb(prec,size),         expected);
     CHECK_VALUE(avx512_vperm2b(prec,size),        expected);
-#elif defined(HAVE_AVX512F_INSTRUCTIONS)
+#endif
+#if defined(HAVE_AVX512F_INSTRUCTIONS)
     CHECK_VALUE(avx512f_harley_seal(prec,size),   expected);
+#endif
+#endif
+#if defined(HAVE_AVX512CD_INSTRUCTIONS)
+    CHECK_VALUE(avx512cd_naive(prec,size),   expected);
 #endif
     return true;
 }
