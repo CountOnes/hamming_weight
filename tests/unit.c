@@ -48,8 +48,9 @@ static bool check(uint64_t * prec, int size) {
     CHECK_VALUE(avx512_vperm2b(prec,size),        expected);
 #endif
 #if defined(HAVE_AVX512F_INSTRUCTIONS)
-    CHECK_VALUE(avx512f_harley_seal(prec,size),   expected);
-    CHECK_VALUE(avx512f_gather(prec,size),   expected);
+    CHECK_VALUE(avx512f_harley_seal(prec,size),                    expected);
+    CHECK_VALUE(avx512f_harley_seal__hardware_popcnt(prec,size),   expected);
+    CHECK_VALUE(avx512f_gather(prec,size),                         expected);
 #endif
 #if defined(HAVE_AVX512CD_INSTRUCTIONS)
     CHECK_VALUE(avx512cd_naive(prec,size),   expected);

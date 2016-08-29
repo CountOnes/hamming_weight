@@ -55,8 +55,9 @@ void demo(int size) {
     BEST_TIME(avx512_vperm2b(prec,size),        expected,, repeat, size);
 #else
 #   if defined(HAVE_AVX512F_INSTRUCTIONS)
-        BEST_TIME(avx512f_harley_seal(prec,size),   expected,, repeat, size);
-        BEST_TIME(avx512f_gather(prec,size),        expected,, repeat, size);
+        BEST_TIME(avx512f_harley_seal(prec,size), expected,, repeat, size);
+        BEST_TIME(avx512f_harley_seal__hardware_popcnt(prec,size),   expected,, repeat, size);
+        BEST_TIME(avx512f_gather(prec,size), expected,, repeat, size);
 #   endif
 #   if defined(HAVE_AVX512CD_INSTRUCTIONS)
         BEST_TIME(avx512cd_naive(prec,size),   expected,, repeat, size);

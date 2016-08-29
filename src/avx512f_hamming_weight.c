@@ -114,6 +114,71 @@ static uint64_t popcnt_harley_seal(const __m512i* data, const uint64_t size)
 }
 
 
+// ---------------
+
+
+static uint64_t _mm256_popcnt(const __m256i v) {
+    return _mm_popcnt_u64(_mm256_extract_epi64(v, 0))
+         + _mm_popcnt_u64(_mm256_extract_epi64(v, 1))
+         + _mm_popcnt_u64(_mm256_extract_epi64(v, 2))
+         + _mm_popcnt_u64(_mm256_extract_epi64(v, 3));
+}
+
+
+static uint64_t _mm512_popcnt(const __m512i v) {
+    return _mm256_popcnt(_mm512_extracti64x4_epi64(v, 0))
+         + _mm256_popcnt(_mm512_extracti64x4_epi64(v, 1));
+}
+
+
+static uint64_t popcnt_harley_seal__hardware_popcnt(const __m512i* data, const uint64_t size)
+{
+  uint64_t total = 0;
+  __m512i ones      = _mm512_setzero_si512();
+  __m512i twos      = _mm512_setzero_si512();
+  __m512i fours     = _mm512_setzero_si512();
+  __m512i eights    = _mm512_setzero_si512();
+  __m512i sixteens  = _mm512_setzero_si512();
+  __m512i twosA, twosB, foursA, foursB, eightsA, eightsB;
+
+  const uint64_t limit = size - size % 16;
+  uint64_t i = 0;
+
+  for(; i < limit; i += 16)
+  {
+    CSA(&twosA, &ones, ones, data[i+0], data[i+1]);
+    CSA(&twosB, &ones, ones, data[i+2], data[i+3]);
+    CSA(&foursA, &twos, twos, twosA, twosB);
+    CSA(&twosA, &ones, ones, data[i+4], data[i+5]);
+    CSA(&twosB, &ones, ones, data[i+6], data[i+7]);
+    CSA(&foursB, &twos, twos, twosA, twosB);
+    CSA(&eightsA,&fours, fours, foursA, foursB);
+    CSA(&twosA, &ones, ones, data[i+8], data[i+9]);
+    CSA(&twosB, &ones, ones, data[i+10], data[i+11]);
+    CSA(&foursA, &twos, twos, twosA, twosB);
+    CSA(&twosA, &ones, ones, data[i+12], data[i+13]);
+    CSA(&twosB, &ones, ones, data[i+14], data[i+15]);
+    CSA(&foursB, &twos, twos, twosA, twosB);
+    CSA(&eightsB, &fours, fours, foursA, foursB);
+    CSA(&sixteens, &eights, eights, eightsA, eightsB);
+
+    total += _mm512_popcnt(sixteens);
+  }
+
+  total *= 16;
+  total += 8 * _mm512_popcnt(eights);
+  total += 4 * _mm512_popcnt(fours);
+  total += 2 * _mm512_popcnt(twos);
+  total += _mm512_popcnt(ones);
+
+  for(; i < size; i++) {
+    total += _mm512_popcnt(data[i]);
+  }
+
+  return total;
+}
+
+
 // ------------------------------
 
 
@@ -188,6 +253,27 @@ uint64_t avx512f_harley_seal(const uint64_t * data, size_t size) {
 
   if (size >= minvit) {
     total = popcnt_harley_seal((const __m512i*) data, size / wordspervector);
+    i = size - size % wordspervector;
+  } else {
+    total = 0;
+    i = 0;
+  }
+
+  for (/**/; i < size; i++) {
+    total += _mm_popcnt_u64(data[i]);
+  }
+  return total;
+}
+
+
+uint64_t avx512f_harley_seal__hardware_popcnt(const uint64_t * data, size_t size) {
+  const unsigned int wordspervector = sizeof(__m512i) / sizeof(uint64_t);
+  const unsigned int minvit = 16 * wordspervector;
+  uint64_t total;
+  size_t i;
+
+  if (size >= minvit) {
+    total = popcnt_harley_seal__hardware_popcnt((const __m512i*) data, size / wordspervector);
     i = size - size % wordspervector;
   } else {
     total = 0;
