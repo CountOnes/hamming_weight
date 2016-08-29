@@ -21,7 +21,7 @@
 
 static bool check(uint64_t * prec, int size) {
     int expected = scalar_bitset64_weight(prec,size);
-#if 0
+
     CHECK_VALUE(lauradoux_bitset64_weight(prec,size),expected);
     CHECK_VALUE(scalar_bitset64_weight(prec,size),expected);
     CHECK_VALUE(scalar_harley_seal_bitset64_weight(prec,size),expected);
@@ -49,7 +49,7 @@ static bool check(uint64_t * prec, int size) {
 #endif
 #if defined(HAVE_AVX512F_INSTRUCTIONS)
     CHECK_VALUE(avx512f_harley_seal(prec,size),   expected);
-#endif
+    CHECK_VALUE(avx512f_gather(prec,size),   expected);
 #endif
 #if defined(HAVE_AVX512CD_INSTRUCTIONS)
     CHECK_VALUE(avx512cd_naive(prec,size),   expected);
@@ -105,6 +105,11 @@ bool check_exponential_step(int size, int start) {
 }
 
 int main() {
+
+#if defined(HAVE_AVX512F_INSTRUCTIONS)
+    avx512f_gather_init();
+#endif
+
     for(int w = 8; w <= 8192; w = 2 * w - 1) {
         printf(".");
         fflush(stdout);

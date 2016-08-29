@@ -32,24 +32,6 @@ static uint64_t avx512_sum_epu32(const __m512i v) {
 }
 
 
-void dump_hex(const uint8_t* buf, size_t num) {
-    for (size_t i=0; i < num; i++) {
-        printf("%02x", buf[i]);
-    }
-}
-
-
-void dump(const char* name, __m512i xmm) {
-    
-    uint8_t buf[64];
-    _mm512_storeu_si512((__m512*)(buf), xmm);
-    printf("%-10s:", name);
-    dump_hex(buf, 64);
-    putchar('\n');
-}
-
-
-
 static uint64_t popcnt_naive(const __m512i* data, const uint64_t size)
 {
     __m512i zeros = _mm512_setzero_si512();

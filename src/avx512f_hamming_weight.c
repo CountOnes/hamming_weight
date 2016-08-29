@@ -114,6 +114,69 @@ static uint64_t popcnt_harley_seal(const __m512i* data, const uint64_t size)
 }
 
 
+// ------------------------------
+
+
+#include "small_table.c"
+
+static uint32_t small_table_32bit[256];
+
+void avx512f_gather_init() {
+    for (int i=0; i < 256; i++) {
+        small_table_32bit[i] = small_table[i];
+    }
+}
+
+
+static uint32_t sse_sum_epu32(const __m128i v) {
+    return _mm_extract_epi32(v, 0)
+         + _mm_extract_epi32(v, 1)
+         + _mm_extract_epi32(v, 2)
+         + _mm_extract_epi32(v, 3);
+        
+}
+
+
+static uint64_t avx512_sum_epu32(const __m512i v) {
+    
+    return sse_sum_epu32(_mm512_extracti32x4_epi32(v, 0))
+         + sse_sum_epu32(_mm512_extracti32x4_epi32(v, 1))
+         + sse_sum_epu32(_mm512_extracti32x4_epi32(v, 2))
+         + sse_sum_epu32(_mm512_extracti32x4_epi32(v, 3));
+}
+
+
+static uint64_t popcnt_gather(const __m512i* data, const uint64_t size)
+{
+    __m512i b0, b1, b2, b3;
+    __m512i p0, p1, p2, p3;
+    __m512i v;
+    __m512i total = _mm512_setzero_si512();
+
+
+    for(uint64_t i=0; i < size; i++) {
+
+        v = data[i];
+        b0 = _mm512_and_epi32(v, _mm512_set1_epi32(0xff));
+        b1 = _mm512_and_epi32(_mm512_srli_epi32(v, 1*8), _mm512_set1_epi32(0xff));
+        b2 = _mm512_and_epi32(_mm512_srli_epi32(v, 2*8), _mm512_set1_epi32(0xff));
+        b3 = _mm512_srli_epi32(v, 3*8);
+
+        p0 = _mm512_i32gather_epi32(b0, (const int*)small_table_32bit, 4);   
+        p1 = _mm512_i32gather_epi32(b1, (const int*)small_table_32bit, 4);   
+        p2 = _mm512_i32gather_epi32(b2, (const int*)small_table_32bit, 4);   
+        p3 = _mm512_i32gather_epi32(b3, (const int*)small_table_32bit, 4);   
+
+        total = _mm512_add_epi32(total, p0);
+        total = _mm512_add_epi32(total, p1);
+        total = _mm512_add_epi32(total, p2);
+        total = _mm512_add_epi32(total, p3);
+    }
+
+    return avx512_sum_epu32(total);
+}
+
+
 // --- public -------------------------------------------------
 
 
@@ -125,6 +188,27 @@ uint64_t avx512f_harley_seal(const uint64_t * data, size_t size) {
 
   if (size >= minvit) {
     total = popcnt_harley_seal((const __m512i*) data, size / wordspervector);
+    i = size - size % wordspervector;
+  } else {
+    total = 0;
+    i = 0;
+  }
+
+  for (/**/; i < size; i++) {
+    total += _mm_popcnt_u64(data[i]);
+  }
+  return total;
+}
+
+
+uint64_t avx512f_gather(const uint64_t * data, size_t size) {
+  const unsigned int wordspervector = sizeof(__m512i) / sizeof(uint64_t);
+  const unsigned int minvit = 16 * wordspervector;
+  uint64_t total;
+  size_t i;
+
+  if (size >= minvit) {
+    total = popcnt_gather((const __m512i*) data, size / wordspervector);
     i = size - size % wordspervector;
   } else {
     total = 0;

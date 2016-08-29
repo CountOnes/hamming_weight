@@ -7,6 +7,10 @@
 // AVX512F version of Harley-Seal, using only "foundation" instruction
 uint64_t avx512f_harley_seal(const uint64_t * data, size_t size);
 
+// AVX512F using gather instruction
+uint64_t avx512f_gather(const uint64_t * data, size_t size);
+void avx512f_gather_init();
+
 #endif // HAVE_AVX512F_INSTRUCTIONS
 
 #endif // _AVX512F_HAMMING_WEIGHT_

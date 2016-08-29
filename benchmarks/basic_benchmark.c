@@ -56,6 +56,7 @@ void demo(int size) {
 #else
 #   if defined(HAVE_AVX512F_INSTRUCTIONS)
         BEST_TIME(avx512f_harley_seal(prec,size),   expected,, repeat, size);
+        BEST_TIME(avx512f_gather(prec,size),        expected,, repeat, size);
 #   endif
 #   if defined(HAVE_AVX512CD_INSTRUCTIONS)
         BEST_TIME(avx512cd_naive(prec,size),   expected,, repeat, size);
@@ -71,6 +72,11 @@ void demo(int size) {
 }
 
 int main() {
+
+#if defined(HAVE_AVX512F_INSTRUCTIONS)
+    avx512f_gather_init();
+#endif
+
     for(int w = 8; w <= 8192; w *= 2) {
         demo(w);
         demo(w*3/2);
