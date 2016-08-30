@@ -57,6 +57,7 @@ void demo(int size) {
 #   if defined(HAVE_AVX512F_INSTRUCTIONS)
         BEST_TIME(avx512f_harley_seal(prec,size), expected,, repeat, size);
         BEST_TIME(avx512f_harley_seal__hardware_popcnt(prec,size),   expected,, repeat, size);
+        BEST_TIME(avx512f_harley_seal__hardware_popcnt_2(prec,size),   expected,, repeat, size);
         BEST_TIME(avx512f_gather(prec,size), expected,, repeat, size);
 #   endif
 #   if defined(HAVE_AVX512CD_INSTRUCTIONS)
