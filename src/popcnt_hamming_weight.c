@@ -83,6 +83,50 @@ int nate_popcnt_bitset64_weight(const uint64_t* buf, size_t len) {
     return total_count;
 }
 
+
+#define ASM_SUM_POPCNT_UNROLLED(total, tmp1, tmp2, tmp3, tmp4, neg, end)         \
+    __asm volatile ("1:\n"                                              \
+                    "popcnt 0(%6,%5,1), %1\n"                           \
+                    "popcnt 8(%6,%5,1), %2\n"                           \
+                    "popcnt 16(%6,%5,1), %3\n"                          \
+                    "popcnt 24(%6,%5,1), %4\n"                          \
+                    "add %1, %0\n"                                      \
+                    "add %2, %0\n"                                      \
+                    "add %3, %0\n"                                      \
+                    "add %4, %0\n"                                      \
+                    "popcnt 32(%6,%5,1), %1\n"                          \
+                    "popcnt 40(%6,%5,1), %2\n"                          \
+                    "popcnt 48(%6,%5,1), %3\n"                          \
+                    "popcnt 56(%6,%5,1), %4\n"                          \
+                    "add %1, %0\n"                                      \
+                    "add %2, %0\n"                                      \
+                    "add %3, %0\n"                                      \
+                    "add %4, %0\n"                                      \
+                    "add $64, %5\n"                                     \
+                    "jnz 1b\n" :                                        \
+                    "+&r" (total),                                      \
+                    "=&r" (tmp1),                                       \
+                    "=&r" (tmp2),                                       \
+                    "=&r" (tmp3),                                       \
+                    "=&r" (tmp4),                                       \
+                    "+&r" (neg) :                                       \
+                    "r" (end)                                           \
+                    )
+
+
+int nate_popcnt_bitset64_weight__unrolled(const uint64_t* buf, size_t len) {
+    uint64_t count1, count2, count3, count4;
+    uint64_t total_count = 0;
+    size_t len8 = len / 8 * 8;// a simple mask would do
+    for (size_t i = 0; i < (len % 8); ++i) {
+        total_count += _mm_popcnt_u64(buf[i]);
+    }
+    const uint8_t *end = (const uint8_t *) buf + len * sizeof(uint64_t);
+    int64_t neg = -(len8 * sizeof(uint64_t));
+    ASM_SUM_POPCNT_UNROLLED(total_count, count1, count2, count3, count4, neg, end);
+    return total_count;
+}
+
 // compute Hamming weight using popcnt instruction through assembly
 // This code is from Alex Yee.
 int yee_popcnt_bitset64_weight(const uint64_t* buf, size_t len) {
