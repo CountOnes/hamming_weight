@@ -4,9 +4,6 @@
 
 #ifdef HAVE_AVX512_INSTRUCTIONS
 
-// AVX512 version of Harley-Seal
-uint64_t avx512_harley_seal(const uint64_t * data, size_t size);
-
 // register-level popcount using vpermb instruction (lookup in a ZMM register)
 uint64_t avx512_vpermb(const uint64_t * data, size_t size);
 

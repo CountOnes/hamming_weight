@@ -44,7 +44,6 @@ static bool check(uint64_t * prec, int size) {
     CHECK_VALUE(avx2_harley_seal_bitset64_weight_unrolled_twice(prec,size),expected);
 #endif
 #if defined(HAVE_AVX512_INSTRUCTIONS)
-    CHECK_VALUE(avx512_harley_seal(prec,size),    expected);
     CHECK_VALUE(avx512_vpermb(prec,size),         expected);
     CHECK_VALUE(avx512_vperm2b(prec,size),        expected);
 #endif
