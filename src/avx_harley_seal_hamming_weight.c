@@ -169,7 +169,7 @@ static uint64_t harley_seal_with_hardware_popcnt(const __m256i* data, const uint
   total += popcount_hardware(ones);
 
   uint64_t* dword = (uint64_t*)(data + i);
-  for(; i < size; i++, data += 4) {
+  for(; i < size; i++, dword += 4) {
     total += _mm_popcnt_u64(dword[0]);
     total += _mm_popcnt_u64(dword[1]);
     total += _mm_popcnt_u64(dword[2]);
