@@ -6,9 +6,9 @@
 
 #include <x86intrin.h>
 #include "config.h"
-#ifdef HAVE_AVX512_INSTRUCTIONS
+#ifdef HAVE_AVX512BW_INSTRUCTIONS
 
-#include "avx512_hamming_weight.h"
+#include "avx512bw_hamming_weight.h"
 #include "small_table.c"
 
 
@@ -177,5 +177,5 @@ uint64_t avx512_vperm2b(const uint64_t * data, size_t size) {
 }
 
 
-#endif // HAVE_AVX512_INSTRUCTIONS
+#endif // HAVE_AVX512BW_INSTRUCTIONS
 

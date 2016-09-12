@@ -18,7 +18,7 @@ void *aligned_malloc(size_t alignment, size_t size) {
 void demo(int size) {
     printf("size = %d words or %lu bytes \n",size,  size*sizeof(uint64_t));
     int repeat = 500;
-    uint64_t * prec = aligned_malloc(32,size * sizeof(uint64_t));
+    uint64_t * prec = aligned_malloc(64, size * sizeof(uint64_t));
     for(int k = 0; k < size; ++k) prec[k]  = -k;
 
     int expected = scalar_bitset64_weight(prec,size);
@@ -51,19 +51,19 @@ void demo(int size) {
 #else
     printf("no AVX2 instructions\n");
 #endif
-#if defined(HAVE_AVX512_INSTRUCTIONS)
+
+#if defined(HAVE_AVX512BW_INSTRUCTIONS)
     BEST_TIME(avx512_vpermb(prec,size),         expected,, repeat, size);
     BEST_TIME(avx512_vperm2b(prec,size),        expected,, repeat, size);
-#else
-#   if defined(HAVE_AVX512F_INSTRUCTIONS)
-        BEST_TIME(avx512f_harley_seal(prec,size), expected,, repeat, size);
-        BEST_TIME(avx512f_harley_seal__hardware_popcnt(prec,size),   expected,, repeat, size);
-        BEST_TIME(avx512f_harley_seal__hardware_popcnt_2(prec,size),   expected,, repeat, size);
-        BEST_TIME(avx512f_gather(prec,size), expected,, repeat, size);
-#   endif
-#   if defined(HAVE_AVX512CD_INSTRUCTIONS)
-        BEST_TIME(avx512cd_naive(prec,size),   expected,, repeat, size);
-#   endif
+#endif
+#if defined(HAVE_AVX512F_INSTRUCTIONS)
+    BEST_TIME(avx512f_harley_seal(prec,size), expected,, repeat, size);
+    BEST_TIME(avx512f_harley_seal__hardware_popcnt(prec,size),   expected,, repeat, size);
+    BEST_TIME(avx512f_harley_seal__hardware_popcnt_2(prec,size),   expected,, repeat, size);
+    BEST_TIME(avx512f_gather(prec,size), expected,, repeat, size);
+#endif
+#if defined(HAVE_AVX512CD_INSTRUCTIONS)
+    BEST_TIME(avx512cd_naive(prec,size),   expected,, repeat, size);
 #endif
 
 #if !defined(HAVE_AVX512_INSTRUCTIONS) && !defined(HAVE_AVX512F_INSTRUCTIONS) && !defined(HAVE_AVX512CD_INSTRUCTIONS)

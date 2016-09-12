@@ -6,7 +6,7 @@
 #endif //__AVX2__
 
 #ifdef __AVX512BW__
-#define HAVE_AVX512_INSTRUCTIONS 1
+#define HAVE_AVX512BW_INSTRUCTIONS 1
 #endif // __AVX512BW__
 
 #ifdef __AVX512F__

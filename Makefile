@@ -16,8 +16,8 @@ CFLAGS_GCC=
 ifeq ($(SSE),1)
 CFLAGS += -msse -march=native
 else
-ifeq ($(AVX512),1)
-CFLAGS += -DHAVE_AVX2_INSTRUCTIONS -DHAVE_AVX512_INSTRUCTIONS
+ifeq ($(AVX512BW),1)
+CFLAGS += -DHAVE_AVX2_INSTRUCTIONS -DHAVE_AVX512BW_INSTRUCTIONS
 CFLAGS_GCC += -mavx512vbmi -march=native
 CFLAGS_ICC += -xCORE-AVX512
 else
@@ -30,7 +30,7 @@ CFLAGS += -march=native -DHAVE_AVX2_INSTRUCTIONS
 CFLAGS_GCC += -mavx2
 CFLAGS_ICC += -march=core-avx2
 endif # AVX512F
-endif # AVX512
+endif # AVX512BW
 endif # SSE
 
 ifeq ($(AVX512CD),1)
@@ -59,7 +59,7 @@ HEADERS=./include/avx_hamming_weight.h \
         ./include/tabulated_hamming_weight.h \
         ./include/avx_harley_seal_hamming_weight.h \
         ./include/config.h \
-        ./include/avx512_hamming_weight.h \
+        ./include/avx512bw_hamming_weight.h \
         ./include/avx512f_hamming_weight.h \
         ./include/avx512cd_hamming_weight.h \
         ./include/sse_hamming_weight.h \
@@ -70,7 +70,7 @@ HEADERS=./include/avx_hamming_weight.h \
 
 OBJECTS= avx_hamming_weight.o popcnt_hamming_weight.o scalar_hamming_weight.o \
 		tabulated_hamming_weight.o avx_harley_seal_hamming_weight.o \
-		avx512_hamming_weight.o \
+		avx512bw_hamming_weight.o \
 		avx512f_hamming_weight.o \
 		avx512cd_hamming_weight.o \
 		sse_hamming_weight.o  sse_harley_seal_hamming_weight.o 

@@ -8,7 +8,7 @@
 #include "scalar_hamming_weight.h"
 #include "sse_harley_seal_hamming_weight.h"
 #include "avx_harley_seal_hamming_weight.h"
-#include "avx512_hamming_weight.h"
+#include "avx512bw_hamming_weight.h"
 #include "avx512f_hamming_weight.h"
 #include "avx512cd_hamming_weight.h"
 
