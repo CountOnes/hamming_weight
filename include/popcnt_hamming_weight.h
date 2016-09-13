@@ -22,6 +22,8 @@ int yee_popcnt_bitset64_weight(const uint64_t* buf, size_t len);
 // This code was originally designed by Nathan Kurz.
 int nate_popcnt_bitset64_weight(const uint64_t* buf, size_t len);
 int nate_popcnt_bitset64_weight__unrolled(const uint64_t* buf, size_t len);
+int nate_popcnt_bitset64_weight__unrolled_more(const uint64_t* buf, size_t len);
+
 
 #endif // HAVE_POPCNT_INSTRUCTION
 
