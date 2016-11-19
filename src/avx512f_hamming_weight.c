@@ -117,17 +117,20 @@ static uint64_t popcnt_harley_seal(const __m512i* data, const uint64_t size)
 // ---------------
 
 
-static uint64_t _mm256_popcnt(const __m256i v) {
-    return _mm_popcnt_u64(_mm256_extract_epi64(v, 0))
-         + _mm_popcnt_u64(_mm256_extract_epi64(v, 1))
-         + _mm_popcnt_u64(_mm256_extract_epi64(v, 2))
-         + _mm_popcnt_u64(_mm256_extract_epi64(v, 3));
-}
+static uint64_t __attribute__((always_inline)) _mm512_popcnt(const __m512i v) {
 
+    uint64_t tmp[8] __attribute__((aligned(64)));
 
-static uint64_t _mm512_popcnt(const __m512i v) {
-    return _mm256_popcnt(_mm512_extracti64x4_epi64(v, 0))
-         + _mm256_popcnt(_mm512_extracti64x4_epi64(v, 1));
+    _mm512_store_si512(tmp, v);
+
+    return _mm_popcnt_u64(tmp[0])
+         + _mm_popcnt_u64(tmp[1])
+         + _mm_popcnt_u64(tmp[2])
+         + _mm_popcnt_u64(tmp[3])
+         + _mm_popcnt_u64(tmp[4])
+         + _mm_popcnt_u64(tmp[5])
+         + _mm_popcnt_u64(tmp[6])
+         + _mm_popcnt_u64(tmp[7]);
 }
 
 
@@ -192,20 +195,6 @@ static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const
   __m512i sixteens  = _mm512_setzero_si512();
   __m512i twosA, twosB, foursA, foursB, eightsA, eightsB;
 
-  __m256i lo, hi;
-
-#define UPDATE_POPCNT(var, vec) \
-        lo = _mm512_extracti64x4_epi64(vec, 0); \
-        hi = _mm512_extracti64x4_epi64(vec, 1); \
-        var += _mm_popcnt_u64(_mm256_extract_epi64(lo, 0)); \
-        var += _mm_popcnt_u64(_mm256_extract_epi64(lo, 1)); \
-        var += _mm_popcnt_u64(_mm256_extract_epi64(lo, 2)); \
-        var += _mm_popcnt_u64(_mm256_extract_epi64(lo, 3)); \
-        var += _mm_popcnt_u64(_mm256_extract_epi64(hi, 0)); \
-        var += _mm_popcnt_u64(_mm256_extract_epi64(hi, 1)); \
-        var += _mm_popcnt_u64(_mm256_extract_epi64(hi, 2)); \
-        var += _mm_popcnt_u64(_mm256_extract_epi64(hi, 3));
-
 #define CSA_BLOCK \
     CSA(&twosA, &ones, ones, data[i+0], data[i+1]); \
     CSA(&twosB, &ones, ones, data[i+2], data[i+3]); \
@@ -233,7 +222,7 @@ static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const
 
   for(; i < limit; i += 16)
   {
-    UPDATE_POPCNT(total, sixteens);
+    total += _mm512_popcnt(sixteens);
     CSA_BLOCK
   }
 
