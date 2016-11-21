@@ -75,6 +75,15 @@ static uint64_t popcount_hardware(__m256i v) {
          + _mm_popcnt_u64(_mm256_extract_epi64(v, 2))
          + _mm_popcnt_u64(_mm256_extract_epi64(v, 3));
 }
+static uint64_t popcount_hardware_buffer(__m256i v) {
+    uint64_t tmp[4];
+    _mm256_store_si256((__m256i *)tmp, v);
+    return _mm_popcnt_u64(tmp[0])
+         + _mm_popcnt_u64(tmp[1])
+         + _mm_popcnt_u64(tmp[2])
+         + _mm_popcnt_u64(tmp[3]);
+}
+
 
 
 static inline void CSA(__m256i* h, __m256i* l, __m256i a, __m256i b, __m256i c) {
@@ -179,6 +188,57 @@ static uint64_t harley_seal_with_hardware_popcnt(const __m256i* data, const uint
   return total;
 }
 
+static uint64_t harley_seal_with_hardware_buffer_popcnt(const __m256i* data, const uint64_t size) {
+  uint64_t total    = 0;
+  __m256i ones      = _mm256_setzero_si256();
+  __m256i twos      = _mm256_setzero_si256();
+  __m256i fours     = _mm256_setzero_si256();
+  __m256i eights    = _mm256_setzero_si256();
+  __m256i sixteens  = _mm256_setzero_si256();
+  __m256i twosA, twosB, foursA, foursB, eightsA, eightsB;
+
+  const uint64_t limit = size - size % 16;
+  uint64_t i = 0;
+
+  for(; i < limit; i += 16) {
+    CSA(&twosA, &ones, ones, _mm256_lddqu_si256(data + i), _mm256_lddqu_si256(data + i + 1));
+    CSA(&twosB, &ones, ones, _mm256_lddqu_si256(data + i + 2), _mm256_lddqu_si256(data + i + 3));
+    CSA(&foursA, &twos, twos, twosA, twosB);
+    CSA(&twosA, &ones, ones, _mm256_lddqu_si256(data + i + 4), _mm256_lddqu_si256(data + i + 5));
+    CSA(&twosB, &ones, ones, _mm256_lddqu_si256(data + i + 6), _mm256_lddqu_si256(data + i + 7));
+    CSA(&foursB,& twos, twos, twosA, twosB);
+    CSA(&eightsA,&fours, fours, foursA, foursB);
+    CSA(&twosA, &ones, ones, _mm256_lddqu_si256(data + i + 8), _mm256_lddqu_si256(data + i + 9));
+    CSA(&twosB, &ones, ones, _mm256_lddqu_si256(data + i + 10), _mm256_lddqu_si256(data + i + 11));
+    CSA(&foursA, &twos, twos, twosA, twosB);
+    CSA(&twosA, &ones, ones, _mm256_lddqu_si256(data + i + 12), _mm256_lddqu_si256(data + i + 13));
+    CSA(&twosB, &ones, ones, _mm256_lddqu_si256(data + i + 14), _mm256_lddqu_si256(data + i + 15));
+    CSA(&foursB, &twos, twos, twosA, twosB);
+    CSA(&eightsB, &fours, fours, foursA, foursB);
+    CSA(&sixteens, &eights, eights, eightsA, eightsB);
+
+    total += popcount_hardware_buffer(sixteens);
+  }
+
+  total *= 16;
+  total += popcount_hardware_buffer(eights) * 8;
+  total += popcount_hardware_buffer(fours)  * 4;
+  total += popcount_hardware_buffer(twos)   * 2;
+  total += popcount_hardware_buffer(ones);
+
+  uint64_t* dword = (uint64_t*)(data + i);
+  for(; i < size; i++, dword += 4) {
+    total += _mm_popcnt_u64(dword[0]);
+    total += _mm_popcnt_u64(dword[1]);
+    total += _mm_popcnt_u64(dword[2]);
+    total += _mm_popcnt_u64(dword[3]);
+  }
+
+  return total;
+}
+
+
+
 static uint64_t popcntnate(const __m256i* data, const uint64_t size) {
   __m256i total     = _mm256_setzero_si256();
   __m256i ones      = _mm256_setzero_si256();
@@ -263,6 +323,25 @@ int avx2_harley_seal_hardware_popcnt(const uint64_t * data, size_t size) {
   }
   return total;
 }
+
+int avx2_harley_seal_hardware_buffer_popcnt(const uint64_t * data, size_t size) {
+  const unsigned int wordspervector = sizeof(__m256i) / sizeof(uint64_t);
+  const unsigned int minvit = 16 * wordspervector;
+  int total;
+  if(size >= minvit) {
+    total = harley_seal_with_hardware_buffer_popcnt((const __m256i*) data, size / wordspervector);
+    for (size_t i = size - size % wordspervector; i < size; i++) {
+      total += _mm_popcnt_u64(data[i]);
+    }
+    return total;
+  }
+  total = 0;
+  for (size_t i = 0; i < size; i++) {
+    total += _mm_popcnt_u64(data[i]);
+  }
+  return total;
+}
+
 
 
 

@@ -12,6 +12,10 @@ int avx2_harley_seal_bitset64_weight(const uint64_t * data, size_t size);
 // compute the Hamming weight of an array of 64-bit words using popcnt instruction and Harley Seal
 int avx2_harley_seal_hardware_popcnt(const uint64_t * data, size_t size);
 
+// compute the Hamming weight of an array of 64-bit words using popcnt instruction and Harley Seal
+int avx2_harley_seal_hardware_buffer_popcnt(const uint64_t * data, size_t size);
+
+
 // compute the Hamming weight of an array of 64-bit words using AVX2 instructions and Harley Seal (version using a particular optimization proposed by N. Kurz)
 int avx2_harley_seal_nate_bitset64_weight(const uint64_t * data, size_t size);
 
