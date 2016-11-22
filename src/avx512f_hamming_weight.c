@@ -220,10 +220,34 @@ static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const
     i += 16;
   }
 
+  uint64_t tmp[8] __attribute__((aligned(64)));
+
   for(; i < limit; i += 16)
   {
-    total += _mm512_popcnt(sixteens);
-    CSA_BLOCK
+    _mm512_store_si512(tmp, sixteens);
+    CSA(&twosA, &ones, ones, data[i+0], data[i+1]);
+    total += _mm_popcnt_u64(tmp[0]);
+    CSA(&twosB, &ones, ones, data[i+2], data[i+3]);
+    total += _mm_popcnt_u64(tmp[1]);
+    CSA(&foursA, &twos, twos, twosA, twosB);
+    total += _mm_popcnt_u64(tmp[2]);
+    CSA(&twosA, &ones, ones, data[i+4], data[i+5]);
+    total += _mm_popcnt_u64(tmp[3]);
+    CSA(&twosB, &ones, ones, data[i+6], data[i+7]);
+    total += _mm_popcnt_u64(tmp[4]);
+    CSA(&foursB, &twos, twos, twosA, twosB);
+    total += _mm_popcnt_u64(tmp[5]);
+    CSA(&eightsA,&fours, fours, foursA, foursB);
+    total += _mm_popcnt_u64(tmp[6]);
+    CSA(&twosA, &ones, ones, data[i+8], data[i+9]);
+    total += _mm_popcnt_u64(tmp[7]);
+    CSA(&twosB, &ones, ones, data[i+10], data[i+11]);
+    CSA(&foursA, &twos, twos, twosA, twosB);
+    CSA(&twosA, &ones, ones, data[i+12], data[i+13]);
+    CSA(&twosB, &ones, ones, data[i+14], data[i+15]);
+    CSA(&foursB, &twos, twos, twosA, twosB);
+    CSA(&eightsB, &fours, fours, foursA, foursB);
+    CSA(&sixteens, &eights, eights, eightsA, eightsB);
   }
 
   total += _mm512_popcnt(sixteens);
