@@ -281,7 +281,7 @@ static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const
     */
 
     __m512i t0, t1, t2, t3, t4, t5, t6, t7, t8, t9;
-    total += _mm512_popcnt(sixteens);
+    _mm512_store_si512(tmp, sixteens);
 
     __asm__ volatile (
         "vmovdqa64      0x0000(%[data]), %[t8]                      \n"
@@ -349,6 +349,15 @@ static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const
         : [data] "r" (data + i)
     );
 
+    total += _mm_popcnt_u64(tmp[0]);
+    total += _mm_popcnt_u64(tmp[1]);
+    total += _mm_popcnt_u64(tmp[2]);
+    total += _mm_popcnt_u64(tmp[3]);
+    total += _mm_popcnt_u64(tmp[4]);
+    total += _mm_popcnt_u64(tmp[5]);
+    total += _mm_popcnt_u64(tmp[6]);
+    total += _mm_popcnt_u64(tmp[7]);
+
     __asm__ volatile (
         // from this point t0 .. t7 are processed
 
@@ -369,7 +378,7 @@ static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const
         "vpternlogd     $0xe8, %[t8], %[t7], %[t6]                  \n"
 
         // outputs
-        : [twos]  "+x" (twos)
+        : [twos] "+x" (twos)
         , [t0] "+x" (t0)
         , [t1] "+x" (t1)
         , [t2] "+x" (t2)
