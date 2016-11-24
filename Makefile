@@ -3,7 +3,7 @@
 .PHONY: all clean
 #
 .SUFFIXES: .cpp .o .c .h
-CFLAGS= -fPIC -std=c99 -Wall -Wextra -Wshadow
+CFLAGS= -fPIC -std=gnu99 -Wall -Wextra -Wshadow
 ifeq ($(DEBUG),1)
 CFLAGS += -ggdb -fsanitize=undefined  -fno-omit-frame-pointer -fsanitize=address
 else

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <math.h>
 #include <string.h>
+#include <assert.h>
 
 #include <x86intrin.h>
 #include "config.h"
@@ -187,6 +188,25 @@ static uint64_t popcnt_harley_seal__hardware_popcnt(const __m512i* data, const u
 
 #define USE_INLINE_ASM 1
 
+#if defined(USE_INLINE_ASM)
+register __m512i d0 asm("zmm15");
+register __m512i d1 asm("zmm16");
+register __m512i d2 asm("zmm17");
+register __m512i d3 asm("zmm18");
+register __m512i d4 asm("zmm19");
+register __m512i d5 asm("zmm20");
+register __m512i d6 asm("zmm21");
+register __m512i d7 asm("zmm22");
+register __m512i d8 asm("zmm23");
+register __m512i d9 asm("zmm24");
+register __m512i dA asm("zmm25");
+register __m512i dB asm("zmm26");
+register __m512i dC asm("zmm27");
+register __m512i dD asm("zmm28");
+register __m512i dE asm("zmm29");
+register __m512i dF asm("zmm30");
+#endif
+
 static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const uint64_t size)
 {
   uint64_t total = 0;
@@ -224,7 +244,7 @@ static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const
 
   uint64_t tmp[8] __attribute__((aligned(64)));
 
-  for(; i < limit; i += 16)
+  for(/**/; i < limit; i += 16)
   {
 #if !defined(USE_INLINE_ASM)
     _mm512_store_si512(tmp, sixteens);
@@ -281,56 +301,74 @@ static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const
     */
 
     __m512i t0, t1, t2, t3, t4, t5, t6, t7, t8, t9;
+    uint64_t r0, r1, r2, r3;
     _mm512_store_si512(tmp, sixteens);
 
     __asm__ volatile (
-        "vmovdqa64      0x0000(%[data]), %[t8]                      \n"
-        "vmovdqa64      0x0040(%[data]), %[t9]                      \n"
+        "vmovdqa64      0x0000(%[data]), %%zmm15                    \n"
+        "popcnt         0x00(%[tmp]), %[r0]                         \n"
+        "vmovdqa64      0x0040(%[data]), %%zmm16                    \n"
+        "popcnt         0x08(%[tmp]), %[r1]                         \n"
+        "vmovdqa64      0x0080(%[data]), %%zmm17                    \n"
+        "popcnt         0x10(%[tmp]), %[r2]                         \n"
+        "vmovdqa64      0x00c0(%[data]), %%zmm18                    \n"
+        "popcnt         0x18(%[tmp]), %[r3]                         \n"
+        "vmovdqa64      0x0100(%[data]), %%zmm19                    \n"
+        "addq           %[r1], %[r0]                                \n"
+        "vmovdqa64      0x0140(%[data]), %%zmm20                    \n"
+        "addq           %[r3], %[r2]                                \n"
+        "vmovdqa64      0x0180(%[data]), %%zmm21                    \n"
+        "addq           %[r0], %[total]                             \n"
+        "vmovdqa64      0x01c0(%[data]), %%zmm22                    \n"
+        "addq           %[r2], %[total]                             \n"
+        "vmovdqa64      0x0200(%[data]), %%zmm23                    \n"
+        "popcnt         0x20(%[tmp]), %[r0]                         \n"
+        "vmovdqa64      0x0240(%[data]), %%zmm24                    \n"
+        "popcnt         0x28(%[tmp]), %[r1]                         \n"
+        "vmovdqa64      0x0280(%[data]), %%zmm25                    \n"
+        "popcnt         0x30(%[tmp]), %[r2]                         \n"
+        "vmovdqa64      0x02c0(%[data]), %%zmm26                    \n"
+        "popcnt         0x38(%[tmp]), %[r2]                         \n"
+        "vmovdqa64      0x0300(%[data]), %%zmm27                    \n"
+        "addq           %[r1], %[r0]                                \n"
+        "vmovdqa64      0x0340(%[data]), %%zmm28                    \n"
+        "addq           %[r3], %[r2]                                \n"
+        "vmovdqa64      0x0380(%[data]), %%zmm29                    \n"
+        "addq           %[r0], %[total]                             \n"
+        "vmovdqa64      0x03c0(%[data]), %%zmm30                    \n"
+        "addq           %[r2], %[total]                             \n"
+
         "vmovdqa64      %[ones], %[t0]                              \n"
-        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
-        "vpternlogd     $0xe8, %[t8], %[t9], %[t0]                  \n"
+        "vpternlogd     $0x96, %%zmm15, %%zmm16, %[ones]                \n"
+        "vpternlogd     $0xe8, %%zmm15, %%zmm16, %[t0]                  \n"
 
-        "vmovdqa64      0x0080(%[data]), %[t8]                      \n"
-        "vmovdqa64      0x00c0(%[data]), %[t9]                      \n"
         "vmovdqa64      %[ones], %[t1]                              \n"
-        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
-        "vpternlogd     $0xe8, %[t8], %[t9], %[t1]                  \n"
+        "vpternlogd     $0x96, %%zmm17, %%zmm18, %[ones]                \n"
+        "vpternlogd     $0xe8, %%zmm17, %%zmm18, %[t1]                  \n"
 
-        "vmovdqa64      0x0100(%[data]), %[t8]                      \n"
-        "vmovdqa64      0x0140(%[data]), %[t9]                      \n"
         "vmovdqa64      %[ones], %[t2]                              \n"
-        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
-        "vpternlogd     $0xe8, %[t8], %[t9], %[t2]                  \n"
+        "vpternlogd     $0x96, %%zmm19, %%zmm20, %[ones]                \n"
+        "vpternlogd     $0xe8, %%zmm19, %%zmm20, %[t2]                  \n"
 
-        "vmovdqa64      0x0180(%[data]), %[t8]                      \n"
-        "vmovdqa64      0x01c0(%[data]), %[t9]                      \n"
         "vmovdqa64      %[ones], %[t3]                              \n"
-        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
-        "vpternlogd     $0xe8, %[t8], %[t9], %[t3]                  \n"
+        "vpternlogd     $0x96, %%zmm21, %%zmm22, %[ones]                \n"
+        "vpternlogd     $0xe8, %%zmm21, %%zmm22, %[t3]                  \n"
 
-        "vmovdqa64      0x0200(%[data]), %[t8]                      \n"
-        "vmovdqa64      0x0240(%[data]), %[t9]                      \n"
         "vmovdqa64      %[ones], %[t4]                              \n"
-        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
-        "vpternlogd     $0xe8, %[t8], %[t9], %[t4]                  \n"
+        "vpternlogd     $0x96, %%zmm23, %%zmm24, %[ones]                \n"
+        "vpternlogd     $0xe8, %%zmm23, %%zmm24, %[t4]                  \n"
 
-        "vmovdqa64      0x0280(%[data]), %[t8]                      \n"
-        "vmovdqa64      0x02c0(%[data]), %[t9]                      \n"
         "vmovdqa64      %[ones], %[t5]                              \n"
-        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
-        "vpternlogd     $0xe8, %[t8], %[t9], %[t5]                  \n"
+        "vpternlogd     $0x96, %%zmm25, %%zmm26, %[ones]                \n"
+        "vpternlogd     $0xe8, %%zmm25, %%zmm26, %[t5]                  \n"
 
-        "vmovdqa64      0x0300(%[data]), %[t8]                      \n"
-        "vmovdqa64      0x0340(%[data]), %[t9]                      \n"
         "vmovdqa64      %[ones], %[t6]                              \n"
-        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
-        "vpternlogd     $0xe8, %[t8], %[t9], %[t6]                  \n"
+        "vpternlogd     $0x96, %%zmm27, %%zmm28, %[ones]                \n"
+        "vpternlogd     $0xe8, %%zmm27, %%zmm28, %[t6]                  \n"
 
-        "vmovdqa64      0x0380(%[data]), %[t8]                      \n"
-        "vmovdqa64      0x03c0(%[data]), %[t9]                      \n"
         "vmovdqa64      %[ones], %[t7]                              \n"
-        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
-        "vpternlogd     $0xe8, %[t8], %[t9], %[t7]                  \n"
+        "vpternlogd     $0x96, %%zmm29, %%zmm30, %[ones]                \n"
+        "vpternlogd     $0xe8, %%zmm29, %%zmm30, %[t7]                  \n"
 
         // outputs
         : [ones]  "+x" (ones)
@@ -344,19 +382,16 @@ static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const
         , [t7] "=x" (t7)
         , [t8] "+x" (t8)
         , [t9] "+x" (t9)
+        , [total] "+r" (total)
+        , [r0] "+r" (r0)
+        , [r1] "+r" (r1)
+        , [r2] "+r" (r2)
+        , [r3] "+r" (r3)
 
         // input
         : [data] "r" (data + i)
+        , [tmp] "r" (tmp)
     );
-
-    total += _mm_popcnt_u64(tmp[0]);
-    total += _mm_popcnt_u64(tmp[1]);
-    total += _mm_popcnt_u64(tmp[2]);
-    total += _mm_popcnt_u64(tmp[3]);
-    total += _mm_popcnt_u64(tmp[4]);
-    total += _mm_popcnt_u64(tmp[5]);
-    total += _mm_popcnt_u64(tmp[6]);
-    total += _mm_popcnt_u64(tmp[7]);
 
     __asm__ volatile (
         // from this point t0 .. t7 are processed
