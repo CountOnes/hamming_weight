@@ -209,6 +209,8 @@ void demo(int size) {
   BEST_TIME(avx512f_harley_seal(prec, size), expected, , repeat, size);
   BEST_TIME(avx512f_harley_seal__hardware_popcnt(prec, size), expected, ,
             repeat, size);
+  BEST_TIME(avx512f_harley_seal__hardware_popcnt_32(prec, size), expected, ,
+            repeat, size);
   BEST_TIME(avx512f_harley_seal__hardware_popcnt_2(prec, size), expected, ,
             repeat, size);
   BEST_TIME(avx512f_gather(prec, size), expected, , repeat, size);
