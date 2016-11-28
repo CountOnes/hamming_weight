@@ -181,9 +181,80 @@ static uint64_t popcnt_harley_seal__hardware_popcnt(const __m512i* data, const u
   return total;
 }
 
+static uint64_t popcnt_harley_seal__hardware_popcnt_32(const __m512i* data, const uint64_t size)
+{
+  uint64_t total = 0;
+  __m512i ones      = _mm512_setzero_si512();
+  __m512i twos      = _mm512_setzero_si512();
+  __m512i fours     = _mm512_setzero_si512();
+  __m512i eights    = _mm512_setzero_si512();
+  __m512i sixteens  = _mm512_setzero_si512();
+  __m512i thirtytwos = _mm512_setzero_si512();
+  __m512i twosA, twosB, foursA, foursB, eightsA, eightsB, sixteensA, sixteensB;
+
+  const uint64_t limit = size - size % 32;
+  uint64_t i = 0;
+
+  for(; i < limit; i+= 32)
+  {
+    CSA(&twosA, &ones, ones, data[i+0], data[i+1]);
+    CSA(&twosB, &ones, ones, data[i+2], data[i+3]);
+    CSA(&foursA, &twos, twos, twosA, twosB);
+    CSA(&twosA, &ones, ones, data[i+4], data[i+5]);
+    CSA(&twosB, &ones, ones, data[i+6], data[i+7]);
+    CSA(&foursB, &twos, twos, twosA, twosB);
+    CSA(&eightsA,&fours, fours, foursA, foursB);
+    CSA(&twosA, &ones, ones, data[i+8], data[i+9]);
+    CSA(&twosB, &ones, ones, data[i+10], data[i+11]);
+    CSA(&foursA, &twos, twos, twosA, twosB);
+    CSA(&twosA, &ones, ones, data[i+12], data[i+13]);
+    CSA(&twosB, &ones, ones, data[i+14], data[i+15]);
+    CSA(&foursB, &twos, twos, twosA, twosB);
+    CSA(&eightsB, &fours, fours, foursA, foursB);
+    CSA(&sixteensA, &eights, eights, eightsA, eightsB); 
+    
+    CSA(&twosA, &ones, ones, data[i+16+0], data[i+16+1]);
+    CSA(&twosB, &ones, ones, data[i+16+2], data[i+16+3]);
+    CSA(&foursA, &twos, twos, twosA, twosB);
+    CSA(&twosA, &ones, ones, data[i+16+4], data[i+16+5]);
+    CSA(&twosB, &ones, ones, data[i+16+6], data[i+16+7]);
+    CSA(&foursB, &twos, twos, twosA, twosB);
+    CSA(&eightsA,&fours, fours, foursA, foursB);
+    CSA(&twosA, &ones, ones, data[i+16+8], data[i+16+9]);
+    CSA(&twosB, &ones, ones, data[i+16+10], data[i+16+11]);
+    CSA(&foursA, &twos, twos, twosA, twosB);
+    CSA(&twosA, &ones, ones, data[i+16+12], data[i+16+13]);
+    CSA(&twosB, &ones, ones, data[i+16+14], data[i+16+15]);
+    CSA(&foursB, &twos, twos, twosA, twosB);
+    CSA(&eightsB, &fours, fours, foursA, foursB);
+    CSA(&sixteensB, &eights, eights, eightsA, eightsB);
+    
+    CSA(&thirtytwos, &sixteens, sixteens, sixteensA, sixteensB);
+
+
+    total += _mm512_popcnt(thirtytwos);
+  }
+
+  total *= 32;
+  total += 16 * _mm512_popcnt(sixteens);
+  total += 8 * _mm512_popcnt(eights);
+  total += 4 * _mm512_popcnt(fours);
+  total += 2 * _mm512_popcnt(twos);
+  total += _mm512_popcnt(ones);
+
+  for(; i < size; i++) {
+    total += _mm512_popcnt(data[i]);
+  }
+
+  return total;
+}
+
+
 
 // ------------------------------
 
+
+#define USE_INLINE_ASM 1
 
 static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const uint64_t size)
 {
@@ -220,10 +291,204 @@ static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const
     i += 16;
   }
 
+  uint64_t tmp[8] __attribute__((aligned(64)));
+
   for(; i < limit; i += 16)
   {
-    total += _mm512_popcnt(sixteens);
-    CSA_BLOCK
+#if !defined(USE_INLINE_ASM)
+    _mm512_store_si512(tmp, sixteens);
+    CSA(&twosA, &ones, ones, data[i+0], data[i+1]);
+    total += _mm_popcnt_u64(tmp[0]);
+    CSA(&twosB, &ones, ones, data[i+2], data[i+3]);
+    total += _mm_popcnt_u64(tmp[1]);
+    CSA(&foursA, &twos, twos, twosA, twosB);
+    total += _mm_popcnt_u64(tmp[2]);
+    CSA(&twosA, &ones, ones, data[i+4], data[i+5]);
+    total += _mm_popcnt_u64(tmp[3]);
+    CSA(&twosB, &ones, ones, data[i+6], data[i+7]);
+    total += _mm_popcnt_u64(tmp[4]);
+    CSA(&foursB, &twos, twos, twosA, twosB);
+    total += _mm_popcnt_u64(tmp[5]);
+    CSA(&eightsA,&fours, fours, foursA, foursB);
+    total += _mm_popcnt_u64(tmp[6]);
+    CSA(&twosA, &ones, ones, data[i+8], data[i+9]);
+    total += _mm_popcnt_u64(tmp[7]);
+    CSA(&twosB, &ones, ones, data[i+10], data[i+11]);
+    CSA(&foursA, &twos, twos, twosA, twosB);
+    CSA(&twosA, &ones, ones, data[i+12], data[i+13]);
+    CSA(&twosB, &ones, ones, data[i+14], data[i+15]);
+    CSA(&foursB, &twos, twos, twosA, twosB);
+    CSA(&eightsB, &fours, fours, foursA, foursB);
+    CSA(&sixteens, &eights, eights, eightsA, eightsB);
+#else
+    
+    /*
+    
+    inline, naive assembly -- the first attempt, translation of following code
+
+        CSA(&t0, &ones, ones, data[i+0], data[i+1]);
+        CSA(&t1, &ones, ones, data[i+2], data[i+3]);
+        CSA(&t2, &ones, ones, data[i+4], data[i+5]);
+        CSA(&t3, &ones, ones, data[i+6], data[i+7]);
+        CSA(&t4, &ones, ones, data[i+8], data[i+9]);
+        CSA(&t5, &ones, ones, data[i+10], data[i+11]);
+        CSA(&t6, &ones, ones, data[i+12], data[i+13]);
+        CSA(&t7, &ones, ones, data[i+14], data[i+15]);
+
+        CSA(&t0, &twos, twos, t0, t1);
+        CSA(&t2, &twos, twos, t2, t3);
+        CSA(&t4, &twos, twos, t4, t5);
+        CSA(&t6, &twos, twos, t6, t7);
+
+        CSA(&t0, &fours, fours, t0, t2);
+        CSA(&t4, &fours, fours, t4, t6);
+        
+        CSA(&sixteens, &eights, eights, t0, t4);
+    
+    There are three asm statements, I couldn't put everything into
+    one statement due to error: "error: more than 30 operands in ‘asm’".
+    */
+
+    __m512i t0, t1, t2, t3, t4, t5, t6, t7, t8, t9;
+    _mm512_store_si512(tmp, sixteens);
+
+    __asm__ volatile (
+        "vmovdqa64      0x0000(%[data]), %[t8]                      \n"
+        "vmovdqa64      0x0040(%[data]), %[t9]                      \n"
+        "vmovdqa64      %[ones], %[t0]                              \n"
+        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
+        "vpternlogd     $0xe8, %[t8], %[t9], %[t0]                  \n"
+
+        "vmovdqa64      0x0080(%[data]), %[t8]                      \n"
+        "vmovdqa64      0x00c0(%[data]), %[t9]                      \n"
+        "vmovdqa64      %[ones], %[t1]                              \n"
+        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
+        "vpternlogd     $0xe8, %[t8], %[t9], %[t1]                  \n"
+
+        "vmovdqa64      0x0100(%[data]), %[t8]                      \n"
+        "vmovdqa64      0x0140(%[data]), %[t9]                      \n"
+        "vmovdqa64      %[ones], %[t2]                              \n"
+        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
+        "vpternlogd     $0xe8, %[t8], %[t9], %[t2]                  \n"
+
+        "vmovdqa64      0x0180(%[data]), %[t8]                      \n"
+        "vmovdqa64      0x01c0(%[data]), %[t9]                      \n"
+        "vmovdqa64      %[ones], %[t3]                              \n"
+        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
+        "vpternlogd     $0xe8, %[t8], %[t9], %[t3]                  \n"
+
+        "vmovdqa64      0x0200(%[data]), %[t8]                      \n"
+        "vmovdqa64      0x0240(%[data]), %[t9]                      \n"
+        "vmovdqa64      %[ones], %[t4]                              \n"
+        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
+        "vpternlogd     $0xe8, %[t8], %[t9], %[t4]                  \n"
+
+        "vmovdqa64      0x0280(%[data]), %[t8]                      \n"
+        "vmovdqa64      0x02c0(%[data]), %[t9]                      \n"
+        "vmovdqa64      %[ones], %[t5]                              \n"
+        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
+        "vpternlogd     $0xe8, %[t8], %[t9], %[t5]                  \n"
+
+        "vmovdqa64      0x0300(%[data]), %[t8]                      \n"
+        "vmovdqa64      0x0340(%[data]), %[t9]                      \n"
+        "vmovdqa64      %[ones], %[t6]                              \n"
+        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
+        "vpternlogd     $0xe8, %[t8], %[t9], %[t6]                  \n"
+
+        "vmovdqa64      0x0380(%[data]), %[t8]                      \n"
+        "vmovdqa64      0x03c0(%[data]), %[t9]                      \n"
+        "vmovdqa64      %[ones], %[t7]                              \n"
+        "vpternlogd     $0x96, %[t8], %[t9], %[ones]                \n"
+        "vpternlogd     $0xe8, %[t8], %[t9], %[t7]                  \n"
+
+        // outputs
+        : [ones]  "+x" (ones)
+        , [t0] "=x" (t0)
+        , [t1] "=x" (t1)
+        , [t2] "=x" (t2)
+        , [t3] "=x" (t3)
+        , [t4] "=x" (t4)
+        , [t5] "=x" (t5)
+        , [t6] "=x" (t6)
+        , [t7] "=x" (t7)
+        , [t8] "+x" (t8)
+        , [t9] "+x" (t9)
+
+        // input
+        : [data] "r" (data + i)
+    );
+
+    total += _mm_popcnt_u64(tmp[0]);
+    total += _mm_popcnt_u64(tmp[1]);
+    total += _mm_popcnt_u64(tmp[2]);
+    total += _mm_popcnt_u64(tmp[3]);
+    total += _mm_popcnt_u64(tmp[4]);
+    total += _mm_popcnt_u64(tmp[5]);
+    total += _mm_popcnt_u64(tmp[6]);
+    total += _mm_popcnt_u64(tmp[7]);
+
+    __asm__ volatile (
+        // from this point t0 .. t7 are processed
+
+        "vmovdqa64      %[twos], %[t8]                              \n"
+        "vpternlogd     $0x96, %[t0], %[t1], %[twos]                \n"
+        "vpternlogd     $0xe8, %[t8], %[t1], %[t0]                  \n"
+
+        "vmovdqa64      %[twos], %[t8]                              \n"
+        "vpternlogd     $0x96, %[t2], %[t3], %[twos]                \n"
+        "vpternlogd     $0xe8, %[t8], %[t3], %[t2]                  \n"
+
+        "vmovdqa64      %[twos], %[t8]                              \n"
+        "vpternlogd     $0x96, %[t4], %[t5], %[twos]                \n"
+        "vpternlogd     $0xe8, %[t8], %[t5], %[t4]                  \n"
+
+        "vmovdqa64      %[twos], %[t8]                              \n"
+        "vpternlogd     $0x96, %[t6], %[t7], %[twos]                \n"
+        "vpternlogd     $0xe8, %[t8], %[t7], %[t6]                  \n"
+
+        // outputs
+        : [twos] "+x" (twos)
+        , [t0] "+x" (t0)
+        , [t1] "+x" (t1)
+        , [t2] "+x" (t2)
+        , [t3] "+x" (t3)
+        , [t4] "+x" (t4)
+        , [t5] "+x" (t5)
+        , [t6] "+x" (t6)
+        , [t7] "+x" (t7)
+        , [t8] "+x" (t8)
+        , [t9] "+x" (t9)
+    );
+
+    __asm__ volatile (
+        // from this point t0, t2, t4, t6 are processed
+
+        "vmovdqa64      %[fours], %[t8]                             \n"
+        "vpternlogd     $0x96, %[t0], %[t2], %[fours]               \n"
+        "vpternlogd     $0xe8, %[t8], %[t2], %[t0]                  \n"
+
+        "vmovdqa64      %[fours], %[t8]                             \n"
+        "vpternlogd     $0x96, %[t4], %[t6], %[fours]               \n"
+        "vpternlogd     $0xe8, %[t8], %[t6], %[t4]                  \n"
+
+        // from this point t0, t4, are processed
+
+        "vmovdqa64      %[eights], %[sixteens]                      \n"
+        "vpternlogd     $0x96, %[t0], %[t4], %[eights]              \n"
+        "vpternlogd     $0xe8, %[t0], %[t4], %[sixteens]            \n"
+
+        // outputs
+        : [fours] "+x" (fours)
+        , [eights] "+x" (eights)
+        , [sixteens] "+x" (sixteens)
+        , [t0] "+x" (t0)
+        , [t2] "+x" (t2)
+        , [t4] "+x" (t4)
+        , [t6] "+x" (t6)
+        , [t8] "+x" (t8)
+    );
+
+#endif // !defined(USE_INLINE_ASM)
   }
 
   total += _mm512_popcnt(sixteens);
@@ -350,6 +615,27 @@ uint64_t avx512f_harley_seal__hardware_popcnt(const uint64_t * data, size_t size
   }
   return total;
 }
+
+uint64_t avx512f_harley_seal__hardware_popcnt_32(const uint64_t * data, size_t size) {
+  const unsigned int wordspervector = sizeof(__m512i) / sizeof(uint64_t);
+  const unsigned int minvit = 32 * wordspervector;
+  uint64_t total;
+  size_t i;
+
+  if (size >= minvit) {
+    total = popcnt_harley_seal__hardware_popcnt_32((const __m512i*) data, size / wordspervector);
+    i = size - size % wordspervector;
+  } else {
+    total = 0;
+    i = 0;
+  }
+
+  for (/**/; i < size; i++) {
+    total += _mm_popcnt_u64(data[i]);
+  }
+  return total;
+}
+
 
 
 uint64_t avx512f_harley_seal__hardware_popcnt_2(const uint64_t * data, size_t size) {

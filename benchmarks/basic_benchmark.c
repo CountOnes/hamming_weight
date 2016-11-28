@@ -193,6 +193,8 @@ void demo(int size) {
             size);
   BEST_TIME(avx2_harley_seal_eights_hardware_popcnt(prec, size), expected, , repeat,
             size);
+  BEST_TIME(avx2_harley_seal_hardware_buffer_popcnt(prec, size), expected, , repeat,
+            size);
   BEST_TIME(avx2_harley_seal_nate_bitset64_weight(prec, size), expected, ,
             repeat, size);
   BEST_TIME(avx2_harley_seal_bitset64_weight_unrolled_twice(prec, size),
@@ -208,6 +210,8 @@ void demo(int size) {
 #if defined(HAVE_AVX512F_INSTRUCTIONS)
   BEST_TIME(avx512f_harley_seal(prec, size), expected, , repeat, size);
   BEST_TIME(avx512f_harley_seal__hardware_popcnt(prec, size), expected, ,
+            repeat, size);
+  BEST_TIME(avx512f_harley_seal__hardware_popcnt_32(prec, size), expected, ,
             repeat, size);
   BEST_TIME(avx512f_harley_seal__hardware_popcnt_2(prec, size), expected, ,
             repeat, size);
