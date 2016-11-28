@@ -179,6 +179,46 @@ static uint64_t harley_seal_with_hardware_popcnt(const __m256i* data, const uint
   return total;
 }
 
+static uint64_t harley_seal_eights_with_hardware_popcnt(const __m256i* data, const uint64_t size) {
+  uint64_t total    = 0;
+  __m256i ones      = _mm256_setzero_si256();
+  __m256i twos      = _mm256_setzero_si256();
+  __m256i fours     = _mm256_setzero_si256();
+  __m256i eights    = _mm256_setzero_si256();
+  __m256i twosA, twosB, foursA, foursB;
+
+  const uint64_t limit = size - size % 8;
+  uint64_t i = 0;
+
+  for(; i < limit; i += 8) {
+    CSA(&twosA, &ones, ones, _mm256_lddqu_si256(data + i), _mm256_lddqu_si256(data + i + 1));
+    CSA(&twosB, &ones, ones, _mm256_lddqu_si256(data + i + 2), _mm256_lddqu_si256(data + i + 3));
+    CSA(&foursA, &twos, twos, twosA, twosB);
+    CSA(&twosA, &ones, ones, _mm256_lddqu_si256(data + i + 4), _mm256_lddqu_si256(data + i + 5));
+    CSA(&twosB, &ones, ones, _mm256_lddqu_si256(data + i + 6), _mm256_lddqu_si256(data + i + 7));
+    CSA(&foursB,& twos, twos, twosA, twosB);
+    CSA(&eights,&fours, fours, foursA, foursB);
+
+    total += popcount_hardware(eights);
+  }
+
+  total *= 8;
+  total += popcount_hardware(fours)  * 4;
+  total += popcount_hardware(twos)   * 2;
+  total += popcount_hardware(ones);
+
+  uint64_t* dword = (uint64_t*)(data + i);
+  for(; i < size; i++, dword += 4) {
+    total += _mm_popcnt_u64(dword[0]);
+    total += _mm_popcnt_u64(dword[1]);
+    total += _mm_popcnt_u64(dword[2]);
+    total += _mm_popcnt_u64(dword[3]);
+  }
+
+  return total;
+}
+
+
 static uint64_t popcntnate(const __m256i* data, const uint64_t size) {
   __m256i total     = _mm256_setzero_si256();
   __m256i ones      = _mm256_setzero_si256();
@@ -264,6 +304,24 @@ int avx2_harley_seal_hardware_popcnt(const uint64_t * data, size_t size) {
   return total;
 }
 
+
+int avx2_harley_seal_eights_hardware_popcnt(const uint64_t * data, size_t size) {
+  const unsigned int wordspervector = sizeof(__m256i) / sizeof(uint64_t);
+  const unsigned int minvit = 8 * wordspervector;
+  int total;
+  if(size >= minvit) {
+    total = harley_seal_eights_with_hardware_popcnt((const __m256i*) data, size / wordspervector);
+    for (size_t i = size - size % wordspervector; i < size; i++) {
+      total += _mm_popcnt_u64(data[i]);
+    }
+    return total;
+  }
+  total = 0;
+  for (size_t i = 0; i < size; i++) {
+    total += _mm_popcnt_u64(data[i]);
+  }
+  return total;
+}
 
 
 int avx2_harley_seal_nate_bitset64_weight(const uint64_t * data, size_t size) {

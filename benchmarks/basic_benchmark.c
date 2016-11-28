@@ -191,6 +191,8 @@ void demo(int size) {
             size);
   BEST_TIME(avx2_harley_seal_hardware_popcnt(prec, size), expected, , repeat,
             size);
+  BEST_TIME(avx2_harley_seal_eights_hardware_popcnt(prec, size), expected, , repeat,
+            size);
   BEST_TIME(avx2_harley_seal_nate_bitset64_weight(prec, size), expected, ,
             repeat, size);
   BEST_TIME(avx2_harley_seal_bitset64_weight_unrolled_twice(prec, size),
