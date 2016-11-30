@@ -145,8 +145,10 @@ void demo_case(int whichalgo, int size) {
 #endif
     default:
       printf("I don't know about this algo # %d ", whichalgo);
+      goto end;
     }
   }
+end:
   free(prec);
   printf("\n");
 }
