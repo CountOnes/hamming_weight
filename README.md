@@ -33,6 +33,7 @@ It's assumed that target CPU supports both AVX2 and ``popcnt``.
 * If a CPU doesn't support AVX2 define **SSE**.
 * If a CPU doesn't support popcnt instruction then define **NOPOPCNT**.
 * If you want to build AVX512 variants, define **AVX512F** or **AVX512BW** or **AVX512CD**.
+* If you want to build for AMD XOP, define **XOP**.
 
 For example:
 

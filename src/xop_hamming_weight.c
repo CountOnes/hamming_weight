@@ -60,7 +60,7 @@ int xop_bitset64_weight(const uint64_t* data, size_t n) {
         local_a = _mm_add_epi8(local_a, popcnt1); \
         local_a = _mm_add_epi8(local_a, popcnt2); \
         local_a = _mm_add_epi8(local_a, popcnt3); \
-        /* three higer bits of local_b stores popcount of one bit */ \
+        /* three higher bits of local_b stores popcount of one bit */ \
         local_b = _mm_add_epi8(local_b, _mm_and_si128(t2, _mm_set1_epi8(0x20))); \
         i += 4; \
     }
