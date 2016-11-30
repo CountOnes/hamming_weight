@@ -39,6 +39,11 @@ CFLAGS_GCC += -mavx512f -mavx512cd -march=native
 CFLAGS_ICC += -xCOMMON-AVX512
 endif
 
+ifeq ($(XOP),1)
+CFLAGS += -DHAVE_XOP_INSTRUCTIONS
+CFLAGS_GCC += -mxop -march=native
+endif
+
 ifneq ($(NOPOPCNT),1)
 CFLAGS += -DHAVE_POPCNT_INSTRUCTION
 endif
@@ -63,17 +68,23 @@ HEADERS=./include/avx_hamming_weight.h \
         ./include/avx512f_hamming_weight.h \
         ./include/avx512cd_hamming_weight.h \
         ./include/sse_hamming_weight.h \
+        ./include/xop_hamming_weight.h \
         ./include/sse_jaccard_index.h \
         ./include/jaccard_index.h \
         ./include/sse_jaccard_index.h \
         ./include/sse_harley_seal_hamming_weight.h
 
-OBJECTS= avx_hamming_weight.o popcnt_hamming_weight.o scalar_hamming_weight.o \
-		tabulated_hamming_weight.o avx_harley_seal_hamming_weight.o \
-		avx512bw_hamming_weight.o \
-		avx512f_hamming_weight.o \
-		avx512cd_hamming_weight.o \
-		sse_hamming_weight.o  sse_harley_seal_hamming_weight.o 
+OBJECTS=avx_hamming_weight.o \
+        popcnt_hamming_weight.o \
+        scalar_hamming_weight.o \
+        tabulated_hamming_weight.o \
+        sse_hamming_weight.o \
+        xop_hamming_weight.o \
+        sse_harley_seal_hamming_weight.o \
+        avx_harley_seal_hamming_weight.o \
+        avx512f_hamming_weight.o \
+        avx512bw_hamming_weight.o \
+        avx512cd_hamming_weight.o
 
 BITSET_OBJ = avx_bitset.o popcnt_bitset.o scalar_bitset.o
 		

@@ -57,6 +57,9 @@ static bool check(uint64_t * prec, int size) {
 #if defined(HAVE_AVX512CD_INSTRUCTIONS)
     CHECK_VALUE(avx512cd_naive(prec,size),   expected);
 #endif
+#if defined(HAVE_XOP_INSTRUCTIONS)
+    CHECK_VALUE(xop_bitset64_weight(prec,size),   expected);
+#endif
     return true;
 }
 
@@ -130,29 +133,29 @@ int main() {
             }
         }
     }
-	printf("\n");
-	for (int w = 8; w <= 8192; w = 2 * w - 1) {
-		printf(".");
-		fflush(stdout);
-		for (int step = 1; step < w * (int) sizeof(uint64_t);
-				step += w / 33 + 1) {
-			if (!check_step(w, step))
-				return -1;
+    printf("\n");
+    for (int w = 8; w <= 8192; w = 2 * w - 1) {
+        printf(".");
+        fflush(stdout);
+        for (int step = 1; step < w * (int) sizeof(uint64_t);
+                step += w / 33 + 1) {
+            if (!check_step(w, step))
+                return -1;
 
-		}
-	}
-	printf("\n");
-	for (int w = 8; w <= 8192; w = 2 * w - 1) {
-		printf(".");
-		fflush(stdout);
-		for (int start = 0; start < w * (int) sizeof(uint64_t);
-				start += w / 11 + 1) {
-			if (!check_exponential_step(w, start))
-				return -1;
+        }
+    }
+    printf("\n");
+    for (int w = 8; w <= 8192; w = 2 * w - 1) {
+        printf(".");
+        fflush(stdout);
+        for (int start = 0; start < w * (int) sizeof(uint64_t);
+                start += w / 11 + 1) {
+            if (!check_exponential_step(w, start))
+                return -1;
 
-		}
-	}
-	printf("\n");
-	printf("Code looks ok.\n");
+        }
+    }
+    printf("\n");
+    printf("Code looks ok.\n");
     return 0;
 }

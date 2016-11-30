@@ -138,6 +138,11 @@ void demo_case(int whichalgo, int size) {
       BEST_TIME(avx512cd_naive(prec, size), expected, , repeat, size);
       break;
 #endif
+#if defined(HAVE_XOP_INSTRUCTIONS)
+    case 28:
+      BEST_TIME(xop_bitset64_weight(prec, size), expected, , repeat, size);
+      break;
+#endif
     default:
       printf("I don't know about this algo # %d ", whichalgo);
     }
@@ -225,6 +230,12 @@ void demo(int size) {
     !defined(HAVE_AVX512F_INSTRUCTIONS) &&                                     \
     !defined(HAVE_AVX512CD_INSTRUCTIONS)
   printf("no AVX512 instructions\n");
+#endif
+
+#if defined(HAVE_XOP_INSTRUCTIONS)
+  BEST_TIME(xop_bitset64_weight(prec, size), expected, , repeat, size);
+#else
+  printf("no XOP instructions\n");
 #endif
 
   free(prec);
