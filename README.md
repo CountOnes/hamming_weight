@@ -1,7 +1,7 @@
 # hamming_weight
 C library to compute the Hamming weight of arrays. The Hamming weight is the number
 of ones in a stream of bits. Computing this count quickly has important applications
-in indexing, machine learning and so forth.
+in indexing, machine learning, cryptography and so forth.
 
 Library has several highly optimized implementations, which use `popcnt`, SSE,
 AVX2, and AVX512 instructions.
