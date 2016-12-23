@@ -195,7 +195,7 @@ static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const
   __m512i sixteens  = _mm512_setzero_si512();
   __m512i thirtytwos = _mm512_setzero_si512();
 
-  const uint64_t limit = size - size % 16;
+  const uint64_t limit = size - size % 32;
   uint64_t i = 0;
 
   uint64_t tmp[8] __attribute__((aligned(64)));
