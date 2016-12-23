@@ -202,34 +202,6 @@ static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const
 
   for(; i < limit; i += 32)
   {
-    /*
-    
-    inline, naive assembly -- the first attempt, translation of following code
-    (now doubled, to handle thirtytwos)
-
-        CSA(&t0, &ones, ones, data[i+0], data[i+1]);
-        CSA(&t1, &ones, ones, data[i+2], data[i+3]);
-        CSA(&t2, &ones, ones, data[i+4], data[i+5]);
-        CSA(&t3, &ones, ones, data[i+6], data[i+7]);
-        CSA(&t4, &ones, ones, data[i+8], data[i+9]);
-        CSA(&t5, &ones, ones, data[i+10], data[i+11]);
-        CSA(&t6, &ones, ones, data[i+12], data[i+13]);
-        CSA(&t7, &ones, ones, data[i+14], data[i+15]);
-
-        CSA(&t0, &twos, twos, t0, t1);
-        CSA(&t2, &twos, twos, t2, t3);
-        CSA(&t4, &twos, twos, t4, t5);
-        CSA(&t6, &twos, twos, t6, t7);
-
-        CSA(&t0, &fours, fours, t0, t2);
-        CSA(&t4, &fours, fours, t4, t6);
-        
-        CSA(&sixteens, &eights, eights, t0, t4);
-    
-    There are three asm statements, I couldn't put everything into
-    one statement due to error: "error: more than 30 operands in ‘asm’".
-    */
-
     uint64_t block_total;
 
     __asm__ volatile (
@@ -365,7 +337,6 @@ static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const
         "vpternlogd     $0x96, %%zmm24, %%zmm25, %[twos]                \n"
         "vpternlogd     $0xe8, %%zmm30, %%zmm25, %%zmm24                \n"
 
-#if 1
         "popcnt         0x00(%[tmp]), %%r8                              \n"
         "popcnt         0x08(%[tmp]), %%r9                              \n"
         "popcnt         0x10(%[tmp]), %%r10                             \n"
@@ -384,7 +355,6 @@ static uint64_t popcnt_harley_seal__hardware_popcnt_2(const __m512i* data, const
         "addq           %%r13, %[total]                                 \n"
         "addq           %%r14, %[total]                                 \n"
         "addq           %%r15, %[total]                                 \n"
-#endif
 
         // fours
         "vmovdqa64      %[fours], %%zmm30                               \n"
