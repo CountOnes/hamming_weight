@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-
+#include "rng.h"
 #include "benchmark.h"
 #include "jaccard_index.h"
 
@@ -31,8 +31,8 @@ void demo(int size) {
     uint64_t jaccard_sum_correct, jaccard_int_correct;
 
     for(int k = 0; k < size; ++k) {
-        prec[k]  = -k;
-        prec2[k] = k;
+        prec[k]  = get64rand();
+        prec2[k] = get64rand();
     }
     scalar_jaccard_index(prec,prec2,size,&jaccard_sum_correct,&jaccard_int_correct);
 

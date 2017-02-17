@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <math.h>
 #include <string.h>
+
+#include "rng.h"
 #include "benchmark.h"
 #include "hamming_weight.h"
 
@@ -19,7 +21,7 @@ void demo_case(int whichalgo, int size) {
   int repeat = 500;
   uint64_t *prec = aligned_malloc(64, size * sizeof(uint64_t));
   for (int k = 0; k < size; ++k)
-    prec[k] = -k;
+    prec[k] = get64rand();
 
   int expected = scalar_bitset64_weight(prec, size);
   for (int repeatloop = 0; repeatloop < 32; ++repeatloop) {
@@ -158,7 +160,7 @@ void demo(int size) {
   int repeat = 500;
   uint64_t *prec = aligned_malloc(64, size * sizeof(uint64_t));
   for (int k = 0; k < size; ++k)
-    prec[k] = -k;
+    prec[k] = get64rand();
 
   int expected = scalar_bitset64_weight(prec, size);
 

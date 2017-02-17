@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-
+#include "rng.h"
 #include "benchmark.h"
 #include "bitset.h"
 
@@ -78,8 +78,8 @@ void demo(int size) {
     uint64_t * out = aligned_malloc(32,size * sizeof(uint64_t));
 
     for(int k = 0; k < size; ++k) {
-        dataA[k]  = -k;
-        dataB[k] = k;
+        dataA[k]  = get64rand();
+        dataB[k] = get64rand();
     }
     int expected =  scalar_and(dataA, dataB, size, out);
     BEST_TIME_CHECK(memcpy(out, dataA, size * sizeof(uint64_t)), !memcmp (out, dataA, size * sizeof(uint64_t)),, repeat, size);
@@ -113,4 +113,3 @@ int main() {
     }
     return 0;
 }
-
