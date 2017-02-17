@@ -184,6 +184,8 @@ void demo(int size) {
             repeat, size);
   BEST_TIME(nate_popcnt_bitset64_weight__unrolled_more(prec, size), expected, ,
             repeat, size);
+  BEST_TIME(sse_morancho_bitset64_weight(prec, size), expected, ,
+            repeat, size);
 #else
   printf("no popcnt instruction\n");
 #endif

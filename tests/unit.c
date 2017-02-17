@@ -32,6 +32,7 @@ static bool check(uint64_t * prec, int size) {
     CHECK_VALUE(unrolled_popcnt_bitset64_weight(prec,size),expected);
     CHECK_VALUE(yee_popcnt_bitset64_weight(prec,size),expected);
     CHECK_VALUE(nate_popcnt_bitset64_weight(prec,size),expected);
+    CHECK_VALUE(sse_morancho_bitset64_weight(prec,size),expected);
 #endif
     CHECK_VALUE(sse_bitset64_weight(prec,size),expected);
     CHECK_VALUE(sse_harley_seal_bitset64_weight(prec,size),expected);
