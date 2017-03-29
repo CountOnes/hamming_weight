@@ -43,6 +43,7 @@ static bool check(uint64_t * prec, int size) {
     CHECK_VALUE(avx2_harley_seal_bitset64_weight(prec,size),expected);
     CHECK_VALUE(avx2_harley_seal_hardware_popcnt(prec,size),expected);
     CHECK_VALUE(avx2_harley_seal_nate_bitset64_weight(prec,size),expected);
+    CHECK_VALUE(avx2_harley_seal_walisch_bitset64_weight(prec,size),expected);
     CHECK_VALUE(avx2_harley_seal_bitset64_weight_unrolled_twice(prec,size),expected);
 #endif
 #if defined(HAVE_AVX512BW_INSTRUCTIONS)
