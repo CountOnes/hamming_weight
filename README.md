@@ -16,6 +16,12 @@ Paper
 [Faster Population Counts using AVX2 Instructions](https://arxiv.org/abs/1611.07612)
 
 
+Related library
+------
+
+* [libpopcnt](https://github.com/kimwalisch/libpopcnt)
+
+
 Usage
 -------
 
