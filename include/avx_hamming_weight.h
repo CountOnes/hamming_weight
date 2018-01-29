@@ -14,6 +14,9 @@ int avx2_lauradoux_bitset64_weight(const uint64_t *input, size_t size);
 
 // compute the Hamming weight of an array of 64-bit words using AVX2 instructions
 int avx2_lookup_bitset64_weight(const uint64_t* data, size_t n);
+// compute the Hamming weight of an array of 64-bit words using AVX2 instructions (two counters)
+int avx2_lookup2_bitset64_weight(const uint64_t* data, size_t n);
+
 
 #endif // HAVE_AVX2_INSTRUCTIONS
 

@@ -40,6 +40,7 @@ static bool check(uint64_t * prec, int size) {
 #if defined(HAVE_AVX2_INSTRUCTIONS)
     CHECK_VALUE(avx2_bitset64_weight(prec,size),expected);
     CHECK_VALUE(avx2_lookup_bitset64_weight(prec,size),expected);
+    CHECK_VALUE(avx2_lookup2_bitset64_weight(prec,size),expected);
     CHECK_VALUE(avx2_lauradoux_bitset64_weight(prec,size),expected);
     CHECK_VALUE(avx2_harley_seal_bitset64_weight(prec,size),expected);
     CHECK_VALUE(avx2_harley_seal_hardware_popcnt(prec,size),expected);
