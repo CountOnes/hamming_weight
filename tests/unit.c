@@ -35,6 +35,7 @@ static bool check(uint64_t * prec, int size) {
     CHECK_VALUE(sse_morancho_bitset64_weight(prec,size),expected);
 #endif
     CHECK_VALUE(sse_bitset64_weight(prec,size),expected);
+    CHECK_VALUE(sse_twocounters_bitset64_weight(prec,size),expected);
     CHECK_VALUE(sse_harley_seal_bitset64_weight(prec,size),expected);
 #if defined(HAVE_AVX2_INSTRUCTIONS)
     CHECK_VALUE(avx2_bitset64_weight(prec,size),expected);

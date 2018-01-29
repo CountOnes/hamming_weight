@@ -76,6 +76,7 @@ void demo_case(int whichalgo, int size) {
 #endif
     case 12:
       BEST_TIME(sse_bitset64_weight(prec, size), expected, , repeat, size);
+      BEST_TIME(sse_twocounters_bitset64_weight(prec, size), expected, , repeat, size);
       break;
     case 13:
       BEST_TIME(sse_harley_seal_bitset64_weight(prec, size), expected, , repeat,
@@ -191,6 +192,7 @@ void demo(int size) {
 #endif
 
   BEST_TIME(sse_bitset64_weight(prec, size), expected, , repeat, size);
+  BEST_TIME(sse_twocounters_bitset64_weight(prec, size), expected, , repeat, size);
   BEST_TIME(sse_harley_seal_bitset64_weight(prec, size), expected, , repeat,
             size);
 #if defined(HAVE_AVX2_INSTRUCTIONS)
