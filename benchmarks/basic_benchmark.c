@@ -114,7 +114,7 @@ void demo_case(int whichalgo, int size) {
       break;
 #endif
 
-#if defined(HAVE_AVX512BW_INSTRUCTIONS)
+#if defined(HAVE_AVX512VBMI_INSTRUCTIONS)
     case 21:
       BEST_TIME(avx512_vpermb(prec, size), expected, , repeat, size);
       break;
@@ -221,7 +221,7 @@ void demo(int size) {
   printf("no AVX2 instructions\n");
 #endif
 
-#if defined(HAVE_AVX512BW_INSTRUCTIONS)
+#if defined(HAVE_AVX512VBMI_INSTRUCTIONS)
   BEST_TIME(avx512_vpermb(prec, size), expected, , repeat, size);
   BEST_TIME(avx512_vperm2b(prec, size), expected, , repeat, size);
 #endif

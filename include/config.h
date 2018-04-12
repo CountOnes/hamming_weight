@@ -5,6 +5,10 @@
 #define HAVE_AVX2_INSTRUCTIONS 1
 #endif //__AVX2__
 
+#ifdef __AVX512VBMI__
+#define HAVE_AVX512VBMI_INSTRUCTIONS 1
+#endif // __AVX512VBMI__
+
 #ifdef __AVX512BW__
 #define HAVE_AVX512BW_INSTRUCTIONS 1
 #endif // __AVX512BW__

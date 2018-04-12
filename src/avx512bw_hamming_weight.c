@@ -28,10 +28,11 @@ uint64_t avx512_sum_epu64(const __m512i v) {
     return avx2_sum_epu64(lo) + avx2_sum_epu64(hi);
 }
 
+#endif // HAVE_AVX512BW_INSTRUCTIONS
 
 // ------------------------------
 
-
+#ifdef HAVE_AVX512VBMI_INSTRUCTIONS
 uint64_t popcnt_vpermb(const __m512i* data, const uint64_t count) {
     
     __m512i result = _mm512_setzero_si512();
@@ -131,9 +132,7 @@ uint64_t popcnt_vperm2b(const __m512i* data, const uint64_t count) {
     return avx512_sum_epu64(result);
 }
 
-
 // --- public -------------------------------------------------
-
 
 uint64_t avx512_vpermb(const uint64_t * data, size_t size) {
   const unsigned int wordspervector = sizeof(__m512i) / sizeof(uint64_t);
@@ -177,5 +176,5 @@ uint64_t avx512_vperm2b(const uint64_t * data, size_t size) {
 }
 
 
-#endif // HAVE_AVX512BW_INSTRUCTIONS
+#endif
 
