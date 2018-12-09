@@ -200,7 +200,7 @@ uint64_t popcnt_vperm2b_ver2_unrolled(const __m512i* data, const uint64_t count)
         v_result = _mm512_add_epi64(v_result, _mm512_sad_epu8(t, _mm512_setzero_si512()));
     }
 
-    for (i=count - 4*(count/4); i < count; i++) {
+    for (i=4*(count/4); i < count; i++) {
         v0 = _mm512_load_si512(data + i);
         t0 = _mm512_permutex2var_epi8(lookup0, v0, lookup1);
 
