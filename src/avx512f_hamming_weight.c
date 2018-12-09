@@ -119,6 +119,7 @@ static uint64_t popcnt_harley_seal(const __m512i* data, const uint64_t size)
 
 static uint64_t __attribute__((always_inline)) _mm512_popcnt(const __m512i v) {
 
+#if 1
     uint64_t tmp[8] __attribute__((aligned(64)));
 
     _mm512_store_si512(tmp, v);
@@ -131,6 +132,20 @@ static uint64_t __attribute__((always_inline)) _mm512_popcnt(const __m512i v) {
          + _mm_popcnt_u64(tmp[5])
          + _mm_popcnt_u64(tmp[6])
          + _mm_popcnt_u64(tmp[7]);
+#else
+    const __m128i v0 = _mm512_extracti32x4_epi32(v, 0);
+    const __m128i v1 = _mm512_extracti32x4_epi32(v, 1);
+    const __m128i v2 = _mm512_extracti32x4_epi32(v, 2);
+    const __m128i v3 = _mm512_extracti32x4_epi32(v, 3);
+    return _mm_popcnt_u64(_mm_extract_epi64(v0, 0))
+         + _mm_popcnt_u64(_mm_extract_epi64(v0, 1))
+         + _mm_popcnt_u64(_mm_extract_epi64(v1, 0))
+         + _mm_popcnt_u64(_mm_extract_epi64(v1, 1))
+         + _mm_popcnt_u64(_mm_extract_epi64(v2, 0))
+         + _mm_popcnt_u64(_mm_extract_epi64(v2, 1))
+         + _mm_popcnt_u64(_mm_extract_epi64(v3, 0))
+         + _mm_popcnt_u64(_mm_extract_epi64(v3, 1));
+#endif
 }
 
 
