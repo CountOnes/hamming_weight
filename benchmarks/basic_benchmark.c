@@ -225,6 +225,7 @@ void demo(int size) {
   BEST_TIME(avx512_vpermb(prec, size), expected, , repeat, size);
   BEST_TIME(avx512_vperm2b(prec, size), expected, , repeat, size);
   BEST_TIME(avx512_vperm2b_ver2(prec, size), expected, , repeat, size);
+  BEST_TIME(avx512_vperm2b_ver2_unrolled(prec, size), expected, , repeat, size);
 #endif
 #if defined(HAVE_AVX512F_INSTRUCTIONS)
   BEST_TIME(avx512f_harley_seal(prec, size), expected, , repeat, size);

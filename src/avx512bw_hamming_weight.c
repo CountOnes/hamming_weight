@@ -158,6 +158,59 @@ uint64_t popcnt_vperm2b_ver2(const __m512i* data, const uint64_t count) {
     return avx512_sum_epu64(v_result) + s_result;
 }
 
+
+uint64_t popcnt_vperm2b_ver2_unrolled(const __m512i* data, const uint64_t count) {
+    
+    __m512i  v_result = _mm512_setzero_si512();
+    uint64_t s_result = 0;
+
+    const __m512i lookup0 = _mm512_loadu_si512(small_table);
+    const __m512i lookup1 = _mm512_loadu_si512(small_table + 64);
+    __m512i v0;
+    __m512i v1;
+    __m512i v2;
+    __m512i v3;
+    __m512i t;
+    __m512i t0;
+    __m512i t1;
+    __m512i t2;
+    __m512i t3;
+
+    uint64_t i;
+    for (i=0; i < count; i += 4) {
+        v0 = _mm512_load_si512(data + i + 0);
+        v1 = _mm512_load_si512(data + i + 1);
+        v2 = _mm512_load_si512(data + i + 2);
+        v3 = _mm512_load_si512(data + i + 3);
+
+        t0 = _mm512_permutex2var_epi8(lookup0, v0, lookup1);
+        t1 = _mm512_permutex2var_epi8(lookup0, v1, lookup1);
+        t2 = _mm512_permutex2var_epi8(lookup0, v2, lookup1);
+        t3 = _mm512_permutex2var_epi8(lookup0, v3, lookup1);
+
+        t0 = _mm512_add_epi8(t0, t1);
+        t2 = _mm512_add_epi8(t2, t3);
+        t  = _mm512_add_epi8(t0, t2);
+
+        s_result = s_result + _mm_popcnt_u64(_mm512_movepi8_mask(v0));
+        s_result = s_result + _mm_popcnt_u64(_mm512_movepi8_mask(v1));
+        s_result = s_result + _mm_popcnt_u64(_mm512_movepi8_mask(v2));
+        s_result = s_result + _mm_popcnt_u64(_mm512_movepi8_mask(v3));
+
+        v_result = _mm512_add_epi64(v_result, _mm512_sad_epu8(t, _mm512_setzero_si512()));
+    }
+
+    for (i=count - 4*(count/4); i < count; i++) {
+        v0 = _mm512_load_si512(data + i);
+        t0 = _mm512_permutex2var_epi8(lookup0, v0, lookup1);
+
+        s_result = s_result + _mm_popcnt_u64(_mm512_movepi8_mask(v0));
+        v_result = _mm512_add_epi64(v_result, _mm512_sad_epu8(t0, _mm512_setzero_si512()));
+    }
+
+    return avx512_sum_epu64(v_result) + s_result;
+}
+
 // --- public -------------------------------------------------
 
 uint64_t avx512_vpermb(const uint64_t * data, size_t size) {
@@ -210,6 +263,27 @@ uint64_t avx512_vperm2b_ver2(const uint64_t * data, size_t size) {
 
   if (size >= minvit) {
     total = popcnt_vperm2b_ver2((const __m512i*) data, size / wordspervector);
+    i = size - size % wordspervector;
+  } else {
+    total = 0;
+    i = 0;
+  }
+
+  for (/**/; i < size; i++) {
+    total += _mm_popcnt_u64(data[i]);
+  }
+  return total;
+}
+
+
+uint64_t avx512_vperm2b_ver2_unrolled(const uint64_t * data, size_t size) {
+  const unsigned int wordspervector = sizeof(__m512i) / sizeof(uint64_t);
+  const unsigned int minvit = 16 * wordspervector;
+  uint64_t total;
+  size_t i;
+
+  if (size >= minvit) {
+    total = popcnt_vperm2b_ver2_unrolled((const __m512i*) data, size / wordspervector);
     i = size - size % wordspervector;
   } else {
     total = 0;
