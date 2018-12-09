@@ -132,6 +132,32 @@ uint64_t popcnt_vperm2b(const __m512i* data, const uint64_t count) {
     return avx512_sum_epu64(result);
 }
 
+
+uint64_t popcnt_vperm2b_ver2(const __m512i* data, const uint64_t count) {
+    
+    __m512i  v_result = _mm512_setzero_si512();
+    uint64_t s_result = 0;
+
+    const __m512i lookup0 = _mm512_loadu_si512(small_table);
+    const __m512i lookup1 = _mm512_loadu_si512(small_table + 64);
+    __m512i v, t;
+
+    uint64_t i;
+    for (i=0; i < count; i++) {
+        v = _mm512_load_si512(data + i);
+
+        // lookup 6 lower bits
+        t = _mm512_permutex2var_epi8(lookup0, v, lookup1);
+
+        // separately accumulate the 7th bit
+        s_result = s_result + _mm_popcnt_u64(_mm512_movepi8_mask(v));
+
+        v_result = _mm512_add_epi64(v_result, _mm512_sad_epu8(t, _mm512_setzero_si512()));
+    }
+
+    return avx512_sum_epu64(v_result) + s_result;
+}
+
 // --- public -------------------------------------------------
 
 uint64_t avx512_vpermb(const uint64_t * data, size_t size) {
@@ -163,6 +189,27 @@ uint64_t avx512_vperm2b(const uint64_t * data, size_t size) {
 
   if (size >= minvit) {
     total = popcnt_vperm2b((const __m512i*) data, size / wordspervector);
+    i = size - size % wordspervector;
+  } else {
+    total = 0;
+    i = 0;
+  }
+
+  for (/**/; i < size; i++) {
+    total += _mm_popcnt_u64(data[i]);
+  }
+  return total;
+}
+
+
+uint64_t avx512_vperm2b_ver2(const uint64_t * data, size_t size) {
+  const unsigned int wordspervector = sizeof(__m512i) / sizeof(uint64_t);
+  const unsigned int minvit = 16 * wordspervector;
+  uint64_t total;
+  size_t i;
+
+  if (size >= minvit) {
+    total = popcnt_vperm2b_ver2((const __m512i*) data, size / wordspervector);
     i = size - size % wordspervector;
   } else {
     total = 0;
